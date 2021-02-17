@@ -34,7 +34,7 @@ body {
 	background-color: #ccc;
 }
 
-#demo-descriptive-img {
+.img-container {
 	width: 50%;
 	margin-left: auto;
 	margin-right: auto;
@@ -80,6 +80,21 @@ body {
 	justify-content: space-evenly;
 }
 
+#how-it-works {
+	width: 100%;
+    min-height: 100%;
+	background-color: #ccc;	
+}
+
+#explanation {
+	display: flex;
+	flex-direction: column;
+	width: 90%;
+	margin: auto;
+	padding-top: 2.5rem;
+	align-items: baseline;
+	justify-content: center;
+}
 
 
 

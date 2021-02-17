@@ -4,7 +4,7 @@
 	<div class="container-fluid" id="intro-content">
 		<div class="row intro-content-row">
 			<div class="col-lg split left">
-				<h1 class="header-title">{% block title%}Intro Page{% endblock%}</h1>
+				<h1 class="header-title display-5">{% block title%}Intro Page{% endblock%}</h1>
 				<p class="lead"> 
 						Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 						tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
@@ -18,7 +18,7 @@
 				</p>
 			</div>
 			<div class="col-lg split right">
-				<div id="demo-descriptive-img">
+				<div class="img-container">
 					<img src="{{ url_for('static', filename='img/placeholder.svg') }}">
 				</div>
 				<p>
@@ -29,7 +29,7 @@
 				</p>
 				<div class="btn-sequence">
 					<a href="#" class="btn btn-outline-success">Try the demo!</a>
-					<a href="#" class="btn btn-outline-secondary">See how it works</a>
+					<a href="{{ url_for('about.howitworks') }}" class="btn btn-outline-secondary">See how it works</a>
 				</div>
 			</div>
 		</div>
