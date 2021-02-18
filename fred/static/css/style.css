@@ -7,7 +7,6 @@ body {
 	height: 100%
 }
 
-
 .navbar-brand {
 	margin-left: 1rem;
 	margin-right: 0.5rem;
@@ -86,7 +85,7 @@ body {
 	background-color: #ccc;	
 }
 
-#explanation {
+.main-content {
 	display: flex;
 	flex-direction: column;
 	width: 90%;
@@ -96,5 +95,38 @@ body {
 	justify-content: center;
 }
 
+#upload-form-header {
+	width: 100%;
+    min-height: 100%;
+	background-color: #f2f2f2;
+	padding-bottom: 1rem;
+}
+
+#mxl-input {
+	width: 100%;
+    min-height: 100%;
+	background-color: #e6e6e6;	
+	padding-bottom: 3rem
+}
+
+#wav-input {
+	width: 100%;
+    min-height: 100%;
+	background-color: #ccc;	
+	padding-bottom: 3rem
+}
+
+#param-input {
+	width: 100%;
+    min-height: 100%;
+	background-color: #b3b3b3;	
+	padding-bottom: 3rem
+}
+
+#upload-submit-button{
+	width: 100%;
+    min-height: 100%;
+	background-color: #b3b3b3;
+}
 
 

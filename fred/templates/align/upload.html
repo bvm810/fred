@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<form method="post" accept-charset="utf-8" enctype="multipart/form-data">
+		<div id="upload-form-header">
+			<h1 class="main-content display-5">{% block title%}Set up{% endblock %}</h1>
+		</div>
+		<div id="mxl-input">
+			<div class="main-content">
+				<h1 class="display-6">Step 1: Scores</h1>
+				<p class="lead">
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+					consequat.
+				</p>
+				<div class="mb-3">
+					<label for="mxlFileInput" class="form-label">MusicXML file</label>
+					<input class="form-control "type="file" name="mxl-file" id="mxlFileInput" accept=".musicxml .mxl">
+				</div>
+			</div>
+		</div>
+		<div id="wav-input">
+			<div class="main-content">
+				<h1 class="display-6">Step 2: Recordings</h1>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+					consequat.
+				</p>
+				<div class="mb-3">
+					<label for="wavFileInput" class="form-label">WAVE files</label>
+					<input class="form-control "type="file" name="wav-files" id="wavFileInput" multiple accept=".wav">
+				</div>
+			</div>
+		</div>
+		<div id="param-input">
+			<div class="main-content">
+				<h1 class="display-6">Step 3: Parameter selection</h1>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+					consequat.
+				</p>
+				<ul class="list-group list-group-horizontal">
+					<li class="list-group-item">
+						<label for="nfft">NFFT</label>
+						<input type="number" name="nfft" value="2048">
+					</li>
+					<li class="list-group-item">
+						<label for="winsize">Window Size (ms)</label>
+						<input type="number" name="winsize" value="50">
+					</li>
+					<li class="list-group-item">
+						<label for="alpha">&alpha;</label>
+						<input type="number" name="alpha" value="0.1">
+					</li>
+					<li class="list-group-item">
+						<label for="epsilon">&epsilon;</label>
+						<input type="number" name="epsilon" value="0.001">
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div id="upload-submit-button"class="d-grid gap-2">
+			<input class="btn btn-success btn-lg" type="submit" value="Align !">
+		</div>
+	</form>
+{% endblock %}

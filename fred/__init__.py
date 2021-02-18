@@ -5,9 +5,6 @@ def create_app():
 	Function used for initializing web app
 
 	%%%%%%% Add config here later? %%%%%%%
-
-	Arguments:
-	None
 	"""
 
 	# create Flask app, use instance relative config
@@ -18,6 +15,9 @@ def create_app():
 	from . import about
 	app.register_blueprint(about.bp)
 	app.add_url_rule("/", endpoint="index")
+
+	from . import align
+	app.register_blueprint(align.bp)
 
 	return app
 
