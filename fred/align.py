@@ -12,12 +12,18 @@ def upload():
 	"""
 	if request.method == "POST":
 		# handle user input
-		error = None
-		if error is None:
+		error_mxl, filename_mxl = handle_file_input('mxl-file', request.files, ['musicxml', "mxl"])
+		error_wav, filenames_wav = handle_file_input('wav-files', request.files, ['wav'])
+		# if there is no error
+		if (error_mxl is None) and (error_wav is None):
 			# call align function to create JSON to be used by align page
+			print("Wav files: ", filenames_wav)
+			print("Mxl files: ", filename_mxl)
 			return redirect(url_for("align.music"))
-		# flash error messages if any
-		flash(error)
+		if error_mxl is not None:
+			flash(error_mxl)
+		if error_wav is not None:
+			flash(error_wav)
 	return render_template("align/upload.html")
 
 @bp.route("/music")
@@ -35,7 +41,7 @@ def handle_file_input(formname, filedict, allowed_extensions):
 	Arguments:
 	formname (string) - filelist dict key to search
 	filedict (object) - request.files object
-	allowed_extensions (array of string) - list of allowed extensions
+	allowed_extensions (array of string) - list of allowed extensions as in allowed_file
 	"""
 	error = None
 	filenames = []
@@ -45,21 +51,29 @@ def handle_file_input(formname, filedict, allowed_extensions):
 		error = "No {} part in form".format(formname)
 		return error, filenames
 
-	if filedict[formname] == "":
+	files = filedict.getlist(formname)
+	if (len(files) == 1) and (files[0].filename == ''):
 		# In case no file was sent - Flask receives empty string as filename
-		error = "No {} file was uploaded".format(formname)
+		error = "No {} uploaded".format(formname)
 		return error, filenames
 
-	files = filedict.getlist(formname)
 	for file in files:
 		if not allowed_file(file.filename, allowed_extensions):
-			error = "Extension not allowed for {} file".format(formname)
+			# check file extension - should never appear either, file format is handled in html
+			error = "Extension not allowed for {}".format(formname)
 			return error, filenames
 		filenames.append(secure_filename(file.filename))
 
 	return error, filenames
 
 def allowed_file(filename, allowed_extensions):
+	"""
+	Function to check file extension is among the supported ones
+
+	Arguments:
+	filename (string) - name of the file being checked
+	allowed_extensions (array of string) - array of strings containing file extensions without "." 
+	"""
 	return "." in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 

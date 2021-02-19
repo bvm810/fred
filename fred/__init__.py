@@ -3,14 +3,15 @@ from flask import Flask
 def create_app():
 	"""
 	Function used for initializing web app
-
-	%%%%%%% Add config here later? %%%%%%%
 	"""
 
-	# create Flask app, use instance relative config
-	app = Flask(__name__, instance_relative_config = True)
+	# create Flask app, use instance relative config later?
+	app = Flask(__name__, instance_relative_config=True)
 
-	# add config treatment code here if used
+	# load basic config
+	app.config.from_object("config.DevelopmentConfig")
+	# load instance config
+	app.config.from_pyfile('config.py')
 
 	from . import about
 	app.register_blueprint(about.bp)
