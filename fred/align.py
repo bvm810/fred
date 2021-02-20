@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
+from os import path
 
 bp = Blueprint("align", __name__, url_prefix = "/align")
 
@@ -12,14 +13,22 @@ def upload():
 	"""
 	if request.method == "POST":
 		# handle user input
-		error_mxl, filename_mxl = handle_file_input('mxl-file', request.files, ['musicxml', "mxl"])
-		error_wav, filenames_wav = handle_file_input('wav-files', request.files, ['wav'])
+		error_mxl, filename_mxl = handle_file_input('mxl-file', request.files, current_app.config["SCORE_ALLOWED_EXTENSIONS"])
+		error_wav, filenames_wav = handle_file_input('wav-files', request.files, current_app.config["SONG_ALLOWED_EXTENSIONS"])
+		
 		# if there is no error
 		if (error_mxl is None) and (error_wav is None):
+			# save files
+			filename_mxl = filename_mxl[0]
+			request.files['mxl-file'].save(path.join(current_app.config["SCORE_UPLOAD_FOLDER"], filename_mxl))
+			for file, filename in zip(request.files.getlist('wav-files'), filenames_wav):
+				file.save(path.join(current_app.config["SONG_UPLOAD_FOLDER"], filename))
+
 			# call align function to create JSON to be used by align page
-			print("Wav files: ", filenames_wav)
-			print("Mxl files: ", filename_mxl)
+
+			# redirect to song page
 			return redirect(url_for("align.music"))
+
 		if error_mxl is not None:
 			flash(error_mxl)
 		if error_wav is not None:
