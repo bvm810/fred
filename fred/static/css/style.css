@@ -129,3 +129,19 @@ body {
 	background-color: #b3b3b3;
 }
 
+.error-background {
+	width: 100%;
+    min-height: 100%;
+	background-color: #ccc;	
+}
+
+.server-error {
+	display: flex;
+	flex-direction: column;
+	width: 70%;
+	margin: auto;
+	padding-top: 10rem;
+	align-items: center;
+	justify-content: center;
+}
+

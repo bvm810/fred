@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 from os import path
+import json
 
 bp = Blueprint("align", __name__, url_prefix = "/align")
 
@@ -18,13 +19,21 @@ def upload():
 		
 		# if there is no error
 		if (error_mxl is None) and (error_wav is None):
-			# save files
-			filename_mxl = filename_mxl[0]
-			request.files['mxl-file'].save(path.join(current_app.config["SCORE_UPLOAD_FOLDER"], filename_mxl))
-			for file, filename in zip(request.files.getlist('wav-files'), filenames_wav):
-				file.save(path.join(current_app.config["SONG_UPLOAD_FOLDER"], filename))
 
-			# call align function to create JSON to be used by align page
+			# get files and filenames
+			filenames = filename_mxl + filenames_wav
+			files = request.files.getlist('mxl-file') + request.files.getlist('wav-files')
+
+			# save files
+			try:
+				filepaths = save_files(files, filenames)
+			except:
+				# if something goes wrong despite error handling, something is wrong during save
+				# then send 500 error code
+				return render_template("500.html"), 500
+
+			# write file infos to json
+			write_info_json(filepaths)
 
 			# redirect to song page
 			return redirect(url_for("align.music"))
@@ -51,6 +60,10 @@ def handle_file_input(formname, filedict, allowed_extensions):
 	formname (string) - filelist dict key to search
 	filedict (object) - request.files object
 	allowed_extensions (array of string) - list of allowed extensions as in allowed_file
+
+	Returns:
+	If there is an error, returns a string to be flashed with the error message and an empty array.
+	Otherwise returns None and an array of strings containing the filenames
 	"""
 	error = None
 	filenames = []
@@ -82,7 +95,63 @@ def allowed_file(filename, allowed_extensions):
 	Arguments:
 	filename (string) - name of the file being checked
 	allowed_extensions (array of string) - array of strings containing file extensions without "." 
+
+	Returns:
+	True if file is allowed, false otherwise
 	"""
-	return "." in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+	return "." in filename and filename.rsplit('.', 1)[-1].lower() in allowed_extensions
+
+def save_files(files, filenames):
+	"""
+	Function responsible for saving files for backend. 
+
+	Arguments:
+	files (array of objects) - array containing the file objects to be saved
+	filenames (array of strings) - array containing the names to be given to the file
+
+	Returns:
+	An array of strings containing the filepaths where the files were saved.
+	If an invalid extension is given, raises an exception
+	"""
+
+	filepaths = []
+	for file, filename in zip(files, filenames):
+		if filename.rsplit('.', 1)[-1].lower() in current_app.config["SCORE_ALLOWED_EXTENSIONS"]:
+			filepath = path.join(current_app.config["SCORE_UPLOAD_FOLDER"], filename)
+		elif filename.rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]:
+			filepath = path.join(current_app.config["SONG_UPLOAD_FOLDER"], filename)
+		else:
+			# should never raise this exception - it means something went wrong during error handling
+			raise Exception("Unallowed file extension")
+		file.save(filepath)
+		filepaths.append(filepath)
+	return filepaths
+
+def write_info_json(filepaths):
+	"""
+	Function for writing in json information about the score and recordings' filepath as well as frame sync equivalence.
+
+	Arguments:
+	filepaths (array of string) - array containing the filepaths of the files to be used in music page (mxl + wav)
+	"""
+
+	# data is the dictionary that will be serialized to json
+	data = {}
+
+	# store filenames in json dict
+	data["score"] = [filepath for filepath in filepaths if filepath.rsplit('.', 1)[-1].lower() in current_app.config["SCORE_ALLOWED_EXTENSIONS"]]
+	data["recordings"] = [filepath for filepath in filepaths if filepath.rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]]
+
+	# insert code for frame sync info here
+
+	# write json file
+	json_filepath = path.join(current_app.config["SYNC_INFO_FOLDER"], "music_info.json")
+	with open(json_filepath, "w") as info_json:
+		json.dump(data, info_json)
+
+
+
+
+
 
 

@@ -9,6 +9,7 @@ class DevelopmentConfig(Config):
 	ENV="development"
 	SONG_UPLOAD_FOLDER="tmp/songs"
 	SCORE_UPLOAD_FOLDER="tmp/scores"
+	SYNC_INFO_FOLDER="tmp/json"
 
 class ProductionConfig(Config):
 	ENV="production"
