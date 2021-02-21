@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Music{% endblock %}
+
+{% block content %}
+	<div id="music-player">
+		<div id="controls-container">
+			<div id="controls">
+				<h1 id="control-header" class="display-6">Playback control</h1>
+				{% for i in range(num_audios) %}
+				<h1 id="title-{{ i }}"class="recording-title">Recording Title</h1>
+					<div id="recording-{{ i }}"class="recording">
+						<input class="form-check-input song-selector" type="radio" id="selector-{{ i }}"></input>
+						<div class="progress">
+							{# Correct style and aria-valuenow in JS #}
+							<div id="progress-{{ i }}" class="progress-bar bg-dark" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+						</div>
+					</div>
+				{% endfor %}
+				<div id="playback-controls">
+					<button class="btn btn-outline-secondary rounded-circle" id="play-button">
+						<img src="{{ url_for('static', filename='img/play.svg') }}" width="30" height="40">
+					</button>
+					<button class="btn btn-outline-secondary rounded-circle" id="pause-button">
+						<img src="{{ url_for('static', filename='img/pause.svg') }}" width="30" height="40">
+					</button>
+					<button class="btn btn-outline-secondary rounded-circle" id="stop-button">
+						<img src="{{ url_for('static', filename='img/stop.svg') }}" width="30" height="40">
+					</button>
+				</div>
+			</div>
+		</div>
+		<div id="score-container">
+			<div id="score">
+				{# <h1>score</h1> Insert score here #}
+			</div>
+		</div>
+	</div>
+{% endblock %}

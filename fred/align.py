@@ -36,7 +36,7 @@ def upload():
 			write_info_json(filepaths)
 
 			# redirect to song page
-			return redirect(url_for("align.music"))
+			return redirect(url_for("align.recordings", num_audios=len(filenames_wav)+1))
 
 		if error_mxl is not None:
 			flash(error_mxl)
@@ -44,13 +44,14 @@ def upload():
 			flash(error_wav)
 	return render_template("align/upload.html")
 
-@bp.route("/music")
-def music():
+@bp.route("<int:num_audios>/recordings")
+def recordings(num_audios):
 	"""
 	Having the JSON with the files' infos we only need to render the template.
 	It will be responsible for calling the necessary JS for the page to work.
 	"""
-	return render_template("align/music.html")
+	n_audios = num_audios
+	return render_template("align/recordings.html", num_audios=n_audios)
 
 def handle_file_input(formname, filedict, allowed_extensions):
 	"""
