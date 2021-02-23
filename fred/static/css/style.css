@@ -157,14 +157,9 @@ body {
 	width: 70%;
 	background-color: #e6e6e6;
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	align-items: flex-start;
+	justify-content: flex-start;
 
-}
-
-#score {
-	width: 90%;
-	margin: auto;
 }
 
 #controls-container {

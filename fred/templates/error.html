@@ -6,10 +6,10 @@
 
 <div class="error-background">
 	<div class="server-error">
-		<h1 class="display-1">500</h1>
-		<h3 class="text-muted">Server Internal Error</h3>
+		<h1 class="display-1">{{ error_code }}</h1>
+		<h3 class="text-muted">{{ error }}</h3>
 		<p class="lead">
-			We're really sorry but something went wrong while processing your files
+			{{ message }}
 		</p>
 	</div>
 </div>

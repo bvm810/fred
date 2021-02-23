@@ -7,9 +7,9 @@ class Config(object):
 class DevelopmentConfig(Config):
 	DEBUG=True
 	ENV="development"
-	SONG_UPLOAD_FOLDER="tmp/songs"
-	SCORE_UPLOAD_FOLDER="tmp/scores"
-	SYNC_INFO_FOLDER="tmp/json"
+	SONG_UPLOAD_FOLDER="fred/static/tmp/songs"
+	SCORE_UPLOAD_FOLDER="fred/static/tmp/scores"
+	SYNC_INFO_FOLDER="fred/static/tmp/json"
 
 class ProductionConfig(Config):
 	ENV="production"

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from werkzeug.utils import secure_filename
 from os import path
-import json
+from flask import json
 
 bp = Blueprint("align", __name__, url_prefix = "/align")
 
@@ -30,7 +30,10 @@ def upload():
 			except:
 				# if something goes wrong despite error handling, something is wrong during save
 				# then send 500 error code
-				return render_template("500.html"), 500
+				return render_template("error.html", 
+										error_code=500, 
+										error="Server Internal Error",
+										message="We're really sorry, but something went wrong while we were processing your files"), 500
 
 			# write file infos to json
 			write_info_json(filepaths)
@@ -44,7 +47,7 @@ def upload():
 			flash(error_wav)
 	return render_template("align/upload.html")
 
-@bp.route("<int:num_audios>/recordings")
+@bp.route("/<int:num_audios>/recordings")
 def recordings(num_audios):
 	"""
 	Having the JSON with the files' infos we only need to render the template.
@@ -52,6 +55,18 @@ def recordings(num_audios):
 	"""
 	n_audios = num_audios
 	return render_template("align/recordings.html", num_audios=n_audios)
+
+@bp.route("/fetch")
+def fetch():
+	"""
+	View used only to pass the music info JSON to the JS running in the browser
+
+	Add session info here later on
+	"""
+	json_filepath = path.join(current_app.config["SYNC_INFO_FOLDER"], "music_info.json")
+	with open(json_filepath, "r") as info_json:
+		return json.load(info_json)
+
 
 def handle_file_input(formname, filedict, allowed_extensions):
 	"""
