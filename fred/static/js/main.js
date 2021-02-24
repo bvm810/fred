@@ -27,6 +27,77 @@ async function loadMusicSheet(path, divId){
 	return osmd;
 }
 
+function loadRecording(path, index) {
+	// create howl for the recording
+	const sound = new Howl({
+		src: [path],
+		volume: 1,
+		html5: true,
+	});
+
+	// on load change page appearance with titles and minutes
+	sound.on("load", onLoadRecording(path, index));
+
+	// return a playback objectcontaining all useful elements to be manipulated and the sound
+	const playback = {
+		sound: sound,
+		title: document.getElementById(`title-${index}`),
+		playback: document.getElementById(`recording-${index}`),
+		selector: document.getElementById(`selector-${index}`),
+		progress: document.getElementById(`progress-${index}`),
+	}
+	return playback;
+}
+
+function onLoadRecording(path, index) {
+	// set correct title
+	const title = document.getElementById(`title-${index}`);
+	title.innerHTML = path.match(/\/[^/.]*\./)[0].replace(/[/.]/, '')
+
+	// add song max and min times here to the progress bar here later as well
+}
+
+
+function play(playbacks) {
+	playbacks.forEach((playback) => {
+		if (playback.selector.checked) {
+			console.log("Trying to play ...")
+			console.log(playback.id)
+			console.log(playback.sound.play(playback.id));
+			console.log("no sound coming ...")
+		}
+	})
+}
+
+function pause(playbacks) {
+	playbacks.forEach((playback) => {
+		if (playback.selector.checked) {
+			playback.sound.pause()
+		}
+	})
+}
+
+function stop(playbacks) {
+	playbacks.forEach((playback) => {
+		playback.sound.stop()
+	})
+}
+
+function loadRecordings(paths) {
+	// load recordings individually
+	const playbacks = paths.map((path, index) => loadRecording(path, index))
+
+	// set play pause and stop functions
+	const playBtn = document.getElementById("play-button");
+	playBtn.addEventListener("click", () => play(playbacks));
+
+	const pauseBtn = document.getElementById("pause-button");
+	pauseBtn.addEventListener("click", () => pause(playbacks));
+
+	const stopBtn = document.getElementById("stop-button");
+	stopBtn.addEventListener("click", () => stop(playbacks));
+}
+
 async function main() {
 	try {
 		// get music info 
@@ -40,6 +111,10 @@ async function main() {
 		}
 		// load sheet
 		const osmd = await loadMusicSheet(scoreFile[0], 'score')
+
+		const recordingFiles = musicInfo['recordings'].map(s => s.replace('fred', ''));
+
+		loadRecordings(recordingFiles)
 	} catch(err) {
 		console.log("Error: ", err)
 	}

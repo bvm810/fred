@@ -158,6 +158,9 @@ def write_info_json(filepaths):
 	data["score"] = [filepath for filepath in filepaths if filepath.rsplit('.', 1)[-1].lower() in current_app.config["SCORE_ALLOWED_EXTENSIONS"]]
 	data["recordings"] = [filepath for filepath in filepaths if filepath.rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]]
 
+	# synthesize midi
+	
+
 	# insert code for frame sync info here
 
 	# write json file

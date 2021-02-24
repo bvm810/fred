@@ -8,9 +8,13 @@
 			<div id="controls">
 				<h1 id="control-header" class="display-6">Playback control</h1>
 				{% for i in range(num_audios) %}
-				<h1 id="title-{{ i }}"class="recording-title">Recording Title</h1>
+					<h1 id="title-{{ i }}"class="recording-title"></h1>
 					<div id="recording-{{ i }}"class="recording">
-						<input class="form-check-input song-selector" type="radio" id="selector-{{ i }}"></input>
+						{% if not loop.last%}
+							<input name="song-selector" class="form-check-input song-selector" type="radio" id="selector-{{ i }}"></input>
+						{% else %}
+							<input name="song-selector" class="form-check-input song-selector" type="radio" id="selector-{{ i }}" checked></input>
+						{% endif %}
 						<div class="progress">
 							{# Correct style and aria-valuenow in JS #}
 							<div id="progress-{{ i }}" class="progress-bar bg-dark" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
