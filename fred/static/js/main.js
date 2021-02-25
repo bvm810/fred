@@ -42,7 +42,7 @@ function loadRecording(path, index) {
 	const playback = {
 		sound: sound,
 		title: document.getElementById(`title-${index}`),
-		playback: document.getElementById(`recording-${index}`),
+		recording: document.getElementById(`recording-${index}`),
 		selector: document.getElementById(`selector-${index}`),
 		progress: document.getElementById(`progress-${index}`),
 	}
@@ -52,19 +52,17 @@ function loadRecording(path, index) {
 function onLoadRecording(path, index) {
 	// set correct title
 	const title = document.getElementById(`title-${index}`);
-	title.innerHTML = path.match(/\/[^/.]*\./)[0].replace(/[/.]/, '')
+	title.innerHTML = path.split("/").slice(-1)[0].replace(".wav", '').replace(/_/g, ' ')
 
 	// add song max and min times here to the progress bar here later as well
 }
 
 
 function play(playbacks) {
+	console.log(playbacks)
 	playbacks.forEach((playback) => {
 		if (playback.selector.checked) {
-			console.log("Trying to play ...")
-			console.log(playback.id)
-			console.log(playback.sound.play(playback.id));
-			console.log("no sound coming ...")
+			playback.sound.play()
 		}
 	})
 }
@@ -85,7 +83,9 @@ function stop(playbacks) {
 
 function loadRecordings(paths) {
 	// load recordings individually
-	const playbacks = paths.map((path, index) => loadRecording(path, index))
+	const playbacks = paths.map((path, index) => {
+		return loadRecording(path, index)
+	})
 
 	// set play pause and stop functions
 	const playBtn = document.getElementById("play-button");
@@ -96,6 +96,32 @@ function loadRecordings(paths) {
 
 	const stopBtn = document.getElementById("stop-button");
 	stopBtn.addEventListener("click", () => stop(playbacks));
+}
+
+function getCursorTimestamps(osmd) {
+	// finish here
+
+
+	// initialize variables
+	let timestamps = [];
+	let signature = null;
+	let bpm = 0;
+
+	// reset cursor
+	osmd.cursor.reset()
+
+	// get iterator and sheet music objects
+	const sheet = osmd.sheet
+	const iterator = osmd.cursor.iterator
+
+	while (!iterator.EndReached) {
+		// beat = 4//??? how to get beat unit ????
+		bpm = sheet.SourceMeasures[iterator.CurrentMeasureIndex].TempoInBPM; // what if more than 1 bpm in measure
+		// timestamps.push(iterator.currentTimeStamp.realValue * beat * 60/bpm); // or 1/beat depending on value
+		console.log(sheet.SourceMeasures[iterator.CurrentMeasureIndex].TempoExpressions)
+		iterator.moveToNext()
+	}
+	return timestamps;
 }
 
 async function main() {
@@ -111,6 +137,7 @@ async function main() {
 		}
 		// load sheet
 		const osmd = await loadMusicSheet(scoreFile[0], 'score')
+		// getCursorTimestamps(osmd)
 
 		const recordingFiles = musicInfo['recordings'].map(s => s.replace('fred', ''));
 

@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, json
 from werkzeug.utils import secure_filename
 from os import path
-from flask import json
+from fred.processing import mxl2wav
+
 
 bp = Blueprint("align", __name__, url_prefix = "/align")
 
@@ -17,6 +18,9 @@ def upload():
 		error_mxl, filename_mxl = handle_file_input('mxl-file', request.files, current_app.config["SCORE_ALLOWED_EXTENSIONS"])
 		error_wav, filenames_wav = handle_file_input('wav-files', request.files, current_app.config["SONG_ALLOWED_EXTENSIONS"])
 		
+		# check number of scores here ?
+
+
 		# if there is no error
 		if (error_mxl is None) and (error_wav is None):
 
@@ -67,6 +71,13 @@ def fetch():
 	with open(json_filepath, "r") as info_json:
 		return json.load(info_json)
 
+@bp.after_request
+def add_no_cache_header(response):
+	response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+	response.headers["Pragma"] = "no-cache"
+	response.headers["Expires"] = "0"
+	response.headers['Cache-Control'] = 'public, max-age=0'
+	return response
 
 def handle_file_input(formname, filedict, allowed_extensions):
 	"""
@@ -159,7 +170,8 @@ def write_info_json(filepaths):
 	data["recordings"] = [filepath for filepath in filepaths if filepath.rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]]
 
 	# synthesize midi
-	
+	data["recordings"].append(path.join(current_app.config["SONG_UPLOAD_FOLDER"], "Synthesized Score.wav"))
+	mxl2wav(data["score"][0], path.join(current_app.config["MIDI_FOLDER"], "synthesized-score.mid"), data["recordings"][-1])
 
 	# insert code for frame sync info here
 

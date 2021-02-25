@@ -8,3 +8,7 @@ setup.py
 tmp/
 
 instance/
+
+soundfonts/
+
+test/

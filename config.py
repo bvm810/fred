@@ -9,7 +9,10 @@ class DevelopmentConfig(Config):
 	ENV="development"
 	SONG_UPLOAD_FOLDER="fred/static/tmp/songs"
 	SCORE_UPLOAD_FOLDER="fred/static/tmp/scores"
+	MIDI_FOLDER="fred/static/tmp/midi"
+	SOUNDFONT_PATH="fred/soundfonts/fred_soundfont.sf2"
 	SYNC_INFO_FOLDER="fred/static/tmp/json"
+	SEND_FILE_MAX_AGE_DEFAULT = 0
 
 class ProductionConfig(Config):
 	ENV="production"
