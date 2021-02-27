@@ -1,3 +1,11 @@
+const beatNamesAndValues = {
+	double: 2,
+	whole: 1,
+	half: 1/2,
+	quarter: 1/4,
+	eighth: 1/8,
+}
+
 async function getMusicInfo(fetchUrl) {
 	const response = await fetch(fetchUrl);
 	const musicInfo = await response.json();
@@ -59,9 +67,8 @@ function onLoadRecording(path, index) {
 
 
 function play(playbacks) {
-	console.log(playbacks)
 	playbacks.forEach((playback) => {
-		if (playback.selector.checked) {
+		if (playback.selector.checked && !playback.sound.playing())  {
 			playback.sound.play()
 		}
 	})
@@ -96,6 +103,8 @@ function loadRecordings(paths) {
 
 	const stopBtn = document.getElementById("stop-button");
 	stopBtn.addEventListener("click", () => stop(playbacks));
+
+	return playbacks;
 }
 
 function getCursorTimestamps(osmd) {
@@ -104,8 +113,9 @@ function getCursorTimestamps(osmd) {
 
 	// initialize variables
 	let timestamps = [];
-	let signature = null;
+	let measure = null;
 	let bpm = 0;
+	let beat = 0;
 
 	// reset cursor
 	osmd.cursor.reset()
@@ -115,13 +125,39 @@ function getCursorTimestamps(osmd) {
 	const iterator = osmd.cursor.iterator
 
 	while (!iterator.EndReached) {
-		// beat = 4//??? how to get beat unit ????
-		bpm = sheet.SourceMeasures[iterator.CurrentMeasureIndex].TempoInBPM; // what if more than 1 bpm in measure
-		// timestamps.push(iterator.currentTimeStamp.realValue * beat * 60/bpm); // or 1/beat depending on value
-		console.log(sheet.SourceMeasures[iterator.CurrentMeasureIndex].TempoExpressions)
+		// since OSMD only renders one speed instruction per measure, we can accept this constraint and base ourselves on it
+		measure = sheet.SourceMeasures[iterator.CurrentMeasureIndex]
+		if (measure.TempoExpressions.length > 0) {
+			beat = beatNamesAndValues[measure.TempoExpressions[0].InstantaneousTempo.beatUnit]
+			if (measure.TempoExpressions[0].InstantaneousTempo.dotted) {
+				beat = beat * 1.5;
+			}
+			bpm = measure.TempoInBPM;
+		}
+			
+		timestamps.push(iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm);
 		iterator.moveToNext()
 	}
 	return timestamps;
+}
+
+function moveCursor(songEquivalentTime, cursor, timestamps) {
+	while(songEquivalentTime >= timestamps[1]) {
+		cursor.next()
+		timestamps.shift();
+	}
+}
+
+function updateCursor(playback, osmd, timestamps, referencePlayback) {
+	const cback = setInterval(() => {
+		const currentSongTime = playback.sound.seek();
+		// const songEquivalentTime = getEquivalentTime(playback, referencePlayback, musicInfo)
+		const songEquivalentTime = currentSongTime;
+		moveCursor(songEquivalentTime, osmd.cursor, timestamps)
+	}, 10)
+	playback.sound.on("stop", () => {
+		clearInterval(cback);
+	});
 }
 
 async function main() {
@@ -137,11 +173,32 @@ async function main() {
 		}
 		// load sheet
 		const osmd = await loadMusicSheet(scoreFile[0], 'score')
-		// getCursorTimestamps(osmd)
+		let timestamps = getCursorTimestamps(osmd)
 
+		// get recordings file paths
 		const recordingFiles = musicInfo['recordings'].map(s => s.replace('fred', ''));
+		// load recordings
+		const playbacks = loadRecordings(recordingFiles)
+		const referencePlayback = playbacks[playbacks.length - 1]
 
-		loadRecordings(recordingFiles)
+		// show cursor
+		osmd.cursor.show();
+
+		// set callback for updating cursor
+		playbacks.forEach((playback) => {
+			let timestampsCopy = [...timestamps]
+			playback.sound.on("play", () => {
+				if (playback.sound.seek() === 0) {
+					updateCursor(playback, osmd, timestampsCopy, referencePlayback)
+				}
+			})
+			playback.sound.on("stop", () => {
+				osmd.cursor.reset()
+				timestampsCopy = [...timestamps]
+			})
+		})
+
+
 	} catch(err) {
 		console.log("Error: ", err)
 	}
