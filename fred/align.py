@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, json
 from werkzeug.utils import secure_filename
 from os import path
-from fred.processing import mxl2wav
+from fred.processing import mxl2wav, align_audios, default_params
 
 
 bp = Blueprint("align", __name__, url_prefix = "/align")
@@ -173,7 +173,18 @@ def write_info_json(filepaths):
 	data["recordings"].append(path.join(current_app.config["SONG_UPLOAD_FOLDER"], "Synthesized Score.wav"))
 	mxl2wav(data["score"][0], path.join(current_app.config["MIDI_FOLDER"], "synthesized-score.mid"), data["recordings"][-1])
 
-	# insert code for frame sync info here
+	# get frame sync info
+	# change default params to custom ones later
+	data["frame_equivalence"], fs = align_audios(data["recordings"], default_params)
+
+	# write chroma params and dtw params for reference
+	# change default params to custom ones later
+	data["chroma"] = {
+		"sampling_rate": fs,
+		"n_fft": default_params["n_fft"],
+		"hop_length": default_params["hop_length"],
+		"win_length": default_params["win_length"]
+	}
 
 	# write json file
 	json_filepath = path.join(current_app.config["SYNC_INFO_FOLDER"], "music_info.json")
