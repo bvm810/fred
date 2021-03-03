@@ -143,17 +143,24 @@ function moveCursor(songEquivalentTime, cursor, timestamps) {
 		cursor.next()
 		timestamps.shift();
 	}
+	return timestamps
 }
 
 function updateCursor(playback, osmd, timestamps, referencePlayback, musicInfo) {
 	const cback = setInterval(() => {
-		const songEquivalentTime = getEquivalentTime(playback, referencePlayback, musicInfo)
-		console.log(songEquivalentTime)
-		moveCursor(songEquivalentTime, osmd.cursor, timestamps)
+		const songEquivalentTime = getEquivalentTime(referencePlayback, playback, musicInfo)
+		console.log(`currentSongTime: ${playback.sound.seek()}`)
+		console.log(`songEquivalentTime: ${songEquivalentTime}`)
+		console.log(`timestamp[1]: ${timestamps[1]}`)
+		timestamps = moveCursor(songEquivalentTime, osmd.cursor, timestamps)
 	}, 10)
 	playback.sound.on("stop", () => {
 		clearInterval(cback);
 	});
+	playback.sound.on("pause", () => {
+		clearInterval(cback);
+	});
+	return timestamps
 }
 
 function handleSelection(oldSelectorStates, selectorStates, playbacks, musicInfo) {
@@ -213,6 +220,7 @@ async function main() {
 		// load sheet
 		const osmd = await loadMusicSheet(scoreFile[0], 'score')
 		let timestamps = getCursorTimestamps(osmd)
+		let timestampsCopy = [...timestamps]
 
 		// get recordings file paths
 		const recordingFiles = musicInfo['recordings'].map(s => s.replace('fred', ''));
@@ -236,11 +244,8 @@ async function main() {
 
 		// set callback for updating cursor
 		playbacks.forEach((playback) => {
-			let timestampsCopy = [...timestamps]
 			playback.sound.on("play", () => {
-				if (playback.sound.seek() === 0) {
-					updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo)
-				}
+				timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo)
 			})
 			playback.sound.on("stop", () => {
 				osmd.cursor.reset()
