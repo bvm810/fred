@@ -149,9 +149,6 @@ function moveCursor(songEquivalentTime, cursor, timestamps) {
 function updateCursor(playback, osmd, timestamps, referencePlayback, musicInfo) {
 	const cback = setInterval(() => {
 		const songEquivalentTime = getEquivalentTime(referencePlayback, playback, musicInfo)
-		console.log(`currentSongTime: ${playback.sound.seek()}`)
-		console.log(`songEquivalentTime: ${songEquivalentTime}`)
-		console.log(`timestamp[1]: ${timestamps[1]}`)
 		timestamps = moveCursor(songEquivalentTime, osmd.cursor, timestamps)
 	}, 10)
 	playback.sound.on("stop", () => {
