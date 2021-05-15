@@ -20,7 +20,6 @@ def upload():
 		
 		# check number of scores here ?
 
-
 		# if there is no error
 		if (error_mxl is None) and (error_wav is None):
 

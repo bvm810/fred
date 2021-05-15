@@ -182,7 +182,7 @@ body {
 .recording {
 	width: 90%;
 	margin: auto;
-	margin-bottom: 2rem;
+	margin-bottom: 0;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -212,6 +212,30 @@ body {
 	background-color: #f2f2f2;
 	margin: 0;
 	margin-right: 1rem;
+}
+
+.recording-time {
+	width: 90%;
+	margin-left: 2.5rem;
+	margin-right: auto;
+	margin-top: 0;
+	margin-bottom: 0.5rem;
+	font-size: 0.95rem;
+	font-family: Arial, Helvetica, sans-serif; 
+	display: flex;
+	justify-content: space-between;
+}
+
+.current-time {
+	font-size: 0.75rem;
+	padding-left: 0.25rem;
+	color: #696969
+}
+
+.end-time {
+	font-size: 0.75rem;
+	padding-right: 2.25rem;
+	color: #696969
 }
 
 #control-header {

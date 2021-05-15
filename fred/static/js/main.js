@@ -41,12 +41,10 @@ function loadRecording(path, index) {
 		src: [path],
 		volume: 1,
 		html5: true,
+		onload: () => onLoadRecording(path, index, sound)
 	});
 
-	// on load change page appearance with titles and minutes
-	sound.on("load", onLoadRecording(path, index));
-
-	// return a playback objectcontaining all useful elements to be manipulated and the sound
+	// return a playback object containing all useful elements to be manipulated and the sound
 	const playback = {
 		sound: sound,
 		idx: index,
@@ -54,16 +52,28 @@ function loadRecording(path, index) {
 		recording: document.getElementById(`recording-${index}`),
 		selector: document.getElementById(`selector-${index}`),
 		progress: document.getElementById(`progress-${index}`),
+		currentTime: document.getElementById(`current-time-${index}`)
 	}
 	return playback;
 }
 
-function onLoadRecording(path, index) {
+function onLoadRecording(path, index, sound) {
 	// set correct title
 	const title = document.getElementById(`title-${index}`);
 	title.innerHTML = path.split("/").slice(-1)[0].replace(".wav", '').replace(/_/g, ' ')
 
-	// add song max and min times here to the progress bar here later as well
+	// set progress bar to zero
+	const progressBar = document.getElementById(`progress-${index}`)
+	progressBar.style.width = 0
+
+	// set current time to zero
+	const currentTime = document.getElementById(`current-time-${index}`)
+	currentTime.innerHTML = "00:00"
+
+	// set correct song length
+	const songLength = sound.duration()
+	const endTime = document.getElementById(`end-time-${index}`)
+	endTime.innerHTML = secondToMinuteString(Math.round(songLength))
 }
 
 
@@ -76,7 +86,7 @@ function play(playbacks) {
 }
 
 function pause(playbacks) {
-	playbacks.forEach((playback) => {[]
+	playbacks.forEach((playback) => {
 		playback.sound.pause()
 	})
 }
@@ -201,6 +211,12 @@ function secondToFrame(time, hopLength, samplingRate) {
 
 function frameToSecond(frame, hopLength, samplingRate) {
 	return (frame * hopLength)/samplingRate
+}
+
+function secondToMinuteString(duration) {
+	const minutes = (Math.floor(duration/60)).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
+	const seconds = (duration % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})
+	return `${minutes}:${seconds}`
 }
 
 async function main() {

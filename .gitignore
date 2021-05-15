@@ -2,6 +2,7 @@ venv/
 
 *.pyc
 __pycache__/
+.python-version
 
 setup.py
 
@@ -12,3 +13,7 @@ instance/
 soundfonts/
 
 test/
+
+.DS_Store
+
+fred/.DS_Store
