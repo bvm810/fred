@@ -163,11 +163,49 @@ function updateCursor(playback, osmd, timestamps, referencePlayback, musicInfo) 
 	}, 10)
 	playback.sound.on("stop", () => {
 		clearInterval(cback);
+		osmd.cursor.reset()
+		timestampsCopy = [...timestamps]
 	});
 	playback.sound.on("pause", () => {
 		clearInterval(cback);
 	});
 	return timestamps
+}
+
+function updateProgressBars(playback, playbacks, musicInfo) {
+	const cback = setInterval(() => {
+		playbacks.forEach((plybck) => {
+			const equivalentTime = getEquivalentTime(plybck, playback, musicInfo)
+			const progressBar = plybck.progress
+			progressBar.style.width = `${(equivalentTime/plybck.sound.duration())*100}%`
+		})
+	}, 10)
+	playback.sound.on("stop", () => {
+		clearInterval(cback)
+		playbacks.forEach((plybck) => {
+			plybck.progress.style.width = 0
+		})
+	})
+	playback.sound.on("pause", () => {
+		clearInterval(cback)
+	})
+}
+
+function updateElapsedTime(playback, playbacks, musicInfo) {
+	const cback = setInterval(() => {
+		playbacks.forEach((plybck) => {
+			const equivalentTime = getEquivalentTime(plybck, playback, musicInfo)
+			const currentTime = plybck.currentTime
+			currentTime.innerHTML = secondToMinuteString(Math.round(equivalentTime))
+		})
+	}, 10)
+	playback.sound.on("stop", () => {
+		clearInterval(cback)
+		currentTime.innerHTML = "00:00"
+	})
+	playback.sound.on("pause", () => {
+		clearInterval(cback)
+	})
 }
 
 function handleSelection(oldSelectorStates, selectorStates, playbacks, musicInfo) {
@@ -255,14 +293,20 @@ async function main() {
 		// show cursor
 		osmd.cursor.show();
 
-		// set callback for updating cursor
+		// set callback for updating cursor and progress bar
 		playbacks.forEach((playback) => {
 			playback.sound.on("play", () => {
 				timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo)
+				updateProgressBars(playback, playbacks, musicInfo)
+				updateElapsedTime(playback, playbacks, musicInfo)
 			})
-			playback.sound.on("stop", () => {
+			playback.sound.on("end", () => {
 				osmd.cursor.reset()
 				timestampsCopy = [...timestamps]
+				playbacks.forEach((plybck) => {
+					plybck.progress.style.width = 0
+					plybck.currentTime.innerHTML = "00:00"
+				})
 			})
 		})
 
