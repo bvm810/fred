@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, json
 from werkzeug.utils import secure_filename
-from os import path
+from pathlib import Path
 from fred.processing import mxl2wav, align_audios, default_params
 
 
@@ -66,8 +66,8 @@ def fetch():
 
 	Add session info here later on
 	"""
-	json_filepath = path.join(current_app.config["SYNC_INFO_FOLDER"], "music_info.json")
-	with open(json_filepath, "r") as info_json:
+	json_filepath = Path(current_app.config["SYNC_INFO_FOLDER"], "music_info.json")
+	with json_filepath.open() as info_json:
 		return json.load(info_json)
 
 @bp.after_request
@@ -136,22 +136,38 @@ def save_files(files, filenames):
 	filenames (array of strings) - array containing the names to be given to the file
 
 	Returns:
-	An array of strings containing the filepaths where the files were saved.
-	If an invalid extension is given, raises an exception
+	An array of Path objects containing the filepaths where the files were saved.
+	If an invalid extension is given, raises an exception. Path objects are easier to handle
+	than strings and allow for creting directories more easily
 	"""
+
+	# create necessary directories, in case they do not exist
+	create_tmp_dirs()
 
 	filepaths = []
 	for file, filename in zip(files, filenames):
 		if filename.rsplit('.', 1)[-1].lower() in current_app.config["SCORE_ALLOWED_EXTENSIONS"]:
-			filepath = path.join(current_app.config["SCORE_UPLOAD_FOLDER"], filename)
+			filepath = Path(current_app.config["SCORE_UPLOAD_FOLDER"], filename)
 		elif filename.rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]:
-			filepath = path.join(current_app.config["SONG_UPLOAD_FOLDER"], filename)
+			filepath = Path(current_app.config["SONG_UPLOAD_FOLDER"], filename)
 		else:
 			# should never raise this exception - it means something went wrong during error handling
 			raise Exception("Unallowed file extension")
 		file.save(filepath)
 		filepaths.append(filepath)
 	return filepaths
+
+def create_tmp_dirs():
+	"""
+	Procedure for creating tmp dirs required for fetching .wav, .mxl, and json, as well as saving midi files.
+
+	Add return of exception raising later on? 
+	"""
+	Path(current_app.config["SONG_UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
+	Path(current_app.config["SCORE_UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
+	Path(current_app.config["MIDI_FOLDER"]).mkdir(parents=True, exist_ok=True)
+	Path(current_app.config["SYNC_INFO_FOLDER"]).mkdir(parents=True, exist_ok=True)
+
 
 def write_info_json(filepaths):
 	"""
@@ -165,12 +181,13 @@ def write_info_json(filepaths):
 	data = {}
 
 	# store filenames in json dict
-	data["score"] = [filepath for filepath in filepaths if filepath.rsplit('.', 1)[-1].lower() in current_app.config["SCORE_ALLOWED_EXTENSIONS"]]
-	data["recordings"] = [filepath for filepath in filepaths if filepath.rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]]
+	data["score"] = [str(filepath) for filepath in filepaths if str(filepath).rsplit('.', 1)[-1].lower() in current_app.config["SCORE_ALLOWED_EXTENSIONS"]]
+	data["recordings"] = [str(filepath) for filepath in filepaths if str(filepath).rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]]
 
 	# synthesize midi
-	data["recordings"].append(path.join(current_app.config["SONG_UPLOAD_FOLDER"], "Synthesized Score.wav"))
-	mxl2wav(data["score"][0], path.join(current_app.config["MIDI_FOLDER"], "synthesized-score.mid"), data["recordings"][-1])
+
+	data["recordings"].append(str(Path(current_app.config["SONG_UPLOAD_FOLDER"], "Synthesized Score.wav")))
+	mxl2wav(data["score"][0], str(Path(current_app.config["MIDI_FOLDER"], "synthesized-score.mid")), data["recordings"][-1])
 
 	# get frame sync info
 	# change default params to custom ones later
@@ -185,9 +202,8 @@ def write_info_json(filepaths):
 		"win_length": default_params["win_length"]
 	}
 
-	# write json file
-	json_filepath = path.join(current_app.config["SYNC_INFO_FOLDER"], "music_info.json")
-	with open(json_filepath, "w") as info_json:
+	json_filepath = Path(current_app.config["SYNC_INFO_FOLDER"], "music_info.json")
+	with json_filepath.open(mode="w") as info_json:
 		json.dump(data, info_json)
 
 
