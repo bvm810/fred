@@ -38,16 +38,21 @@ def upload():
 										error="Server Internal Error",
 										message="We're really sorry, but something went wrong while we were processing your files"), 500
 
+			# get alignment params from form
+			params = None
+
 			# write file infos to json
-			write_info_json(filepaths)
+			write_info_json(filepaths, params)
 
 			# redirect to song page
 			return redirect(url_for("align.recordings", num_audios=len(filenames_wav)+1))
+			# return render_template("align/upload.html")
 
 		if error_mxl is not None:
 			flash(error_mxl)
 		if error_wav is not None:
 			flash(error_wav)
+
 	return render_template("align/upload.html")
 
 @bp.route("/<int:num_audios>/recordings")
@@ -169,7 +174,7 @@ def create_tmp_dirs():
 	Path(current_app.config["SYNC_INFO_FOLDER"]).mkdir(parents=True, exist_ok=True)
 
 
-def write_info_json(filepaths):
+def write_info_json(filepaths, params):
 	"""
 	Function for writing in json information about the score and recordings' filepath as well as frame sync equivalence.
 
@@ -185,13 +190,13 @@ def write_info_json(filepaths):
 	data["recordings"] = [str(filepath) for filepath in filepaths if str(filepath).rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]]
 
 	# synthesize midi
-
 	data["recordings"].append(str(Path(current_app.config["SONG_UPLOAD_FOLDER"], "Synthesized Score.wav")))
 	mxl2wav(data["score"][0], str(Path(current_app.config["MIDI_FOLDER"], "synthesized-score.mid")), data["recordings"][-1])
 
 	# get frame sync info
 	# change default params to custom ones later
 	data["frame_equivalence"], fs = align_audios(data["recordings"], default_params)
+	# data["frame_equivalence"], fs = align_audios(data["recordings"], params)
 
 	# write chroma params and dtw params for reference
 	# change default params to custom ones later

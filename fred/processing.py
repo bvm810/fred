@@ -9,20 +9,20 @@ from librosa.sequence import dtw
 from librosa.display import waveplot, specshow
 
 default_params = {
-	"norm": 2,
-	"n_fft": 4096,
-	"hop_length": 2048,
-	"win_length": 4096,
-	"window": "hanning",
-	"center": False,
-	"epsilon": 0.0001,
-	"gamma": 10,
-	"metric": "cosine",
-	"step_sizes_sigma": np.asarray([(1,1), (1,0), (0,1)]),
-	"weights_add": np.asarray([0, 0, 0]),
-	"weights_mul": np.asarray([1, 3, 3]),
-	"global_constraints": False,
-	"band_rad": 0.0008
+	"norm": 2, #OK
+	"n_fft": 4096, #OK
+	"hop_length": 2048, #OK
+	"win_length": 4096, #OK 
+	"window": "hanning", #OK
+	"center": False, # SHOULD NOT BE AVAILABLE TO USER
+	"epsilon": 0.0001, #OK 
+	"gamma": 10, #OK
+	"metric": "cosine", #OK
+	"step_sizes_sigma": np.asarray([(1,1), (1,0), (0,1)]), # FINISH LATER
+	"weights_add": np.asarray([0, 0, 0]), # NOT AVAILABLE TO USER
+	"weights_mul": np.asarray([1, 3, 3]), # FINISH LATER
+	"global_constraints": False, #OK
+	"band_rad": 0.0008 #OK
 }
 
 

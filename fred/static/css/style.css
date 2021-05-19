@@ -123,6 +123,62 @@ body {
 	padding-bottom: 3rem
 }
 
+#param-input-sections {
+	margin: 0;
+	padding: 0;
+}
+
+#param-input-sections .param-input-section::before {
+	content: "▪";
+	margin-right: 0.5rem;
+
+}
+
+#chroma-param-input {
+	margin: 2rem 0;
+	padding: 0;
+	width: 80%;
+}
+
+#chroma-params {
+	margin-top: 1rem;
+	margin-bottom: 2rem;
+}
+
+#dtw-param-input {
+	margin: 2rem 0;
+	padding: 0;
+	width: 100%;
+}
+
+#dtw-params {
+	margin-top: 1rem;
+}
+
+.dtw-param-col {
+	margin-left: 0;
+	padding-left: 0
+}
+
+#dtw-diagram {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	min-height: 90%;
+	max-width: 90%;
+	margin: auto;
+}
+
+#dtw-diagram img {
+	height: 100%;
+	width: 65%;
+}
+
+#dtw-weigths {
+	display: flex;
+	flex-wrap: wrap;
+}
+
 #upload-submit-button{
 	width: 100%;
     min-height: 100%;
