@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<form method="post" accept-charset="utf-8" enctype="multipart/form-data">
+	<form id="upload-form"method="post" accept-charset="utf-8" enctype="multipart/form-data">
 		<div id="upload-form-header">
 			<h1 class="main-content display-5">{% block title%}Set up{% endblock %}</h1>
 		</div>
@@ -14,31 +14,41 @@
 					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
 					consequat.
 				</p>
-				<div class="mb-3">
-					<label for="mxlFileInput" class="form-label">MusicXML file</label>
-					<input class="form-control "type="file" name="mxl-file" id="mxlFileInput" accept=".musicxml, .mxl">
+				<div class="file-selector row mb-4">
+					<h1 class="col-xl-6 col-form-label">Selected file:</h1>
+					<div class="col-xl-6">
+						<label for="mxlFileInput" class="form-label btn btn-light btn-outline-secondary">Choose File</label>
+						<input class="form-control" type="file" name="mxl-file" id="mxlFileInput" hidden accept=".musicxml, .mxl">
+					</div>
 				</div>
+				<ul id="mxl-file-ul" class="file-list">
+				</ul>
 			</div>
 		</div>
 		<div id="wav-input">
 			<div class="main-content">
 				<h1 class="display-6">Step 2: Recordings</h1>
-				<p>
+				<p class="lead">
 					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
 					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
 					consequat.
 				</p>
-				<div class="mb-3">
-					<label for="wavFileInput" class="form-label">WAVE files</label>
-					<input class="form-control "type="file" name="wav-files" id="wavFileInput" multiple accept=".wav">
+				<div class="file-selector row mb-4">
+					<h1 class="col-xl-6 col-form-label">Selected files:</h1>
+					<div class="col-xl-6">
+						<label for="wavFileInput" class="form-label btn btn-light btn-outline-secondary">Choose Files</label>
+						<input type="file" name="wav-files" id="wavFileInput" multiple hidden accept=".wav">
+					</div>
 				</div>
+				<ul id="wav-file-ul" class="file-list">
+				</ul>
 			</div>
 		</div>
 		<div id="param-input">
 			<div class="main-content">
 				<h1 class="display-6">Step 3: Parameter selection</h1>
-				<p>
+				<p class="lead">
 					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
 					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
@@ -64,11 +74,11 @@
 							<div class="row mb-4">
 								<label class="col-xl-3 col-form-label" for="nfft"><strong>Number of FFT points:</strong></label>
 								<div class="col-xl-3">
-									<input title="Number of FFT samples" class="form-control" type="number" name="nfft" value="4096">
+									<input title="Number of FFT samples" class="form-control" type="number" id="nfft" name="nfft" value="4096">
 								</div>
 								<label class="col-xl-3 col-form-label" for="window"><strong>Windowing function:</strong></label>
 								<div class="col-xl-3">
-									<select title="Function to be used for window weighting" class="custom-select form-control" name="window">
+									<select title="Function to be used for window weighting" class="custom-select form-control" id="window" name="window">
 										<option value="boxcar">Rectangular</option>
 										<option selected value="hann">Hann</option>
 										<option value="hamming">Hamming</option>
@@ -80,7 +90,7 @@
 								<label class="col-xl-3 col-form-label" for="winsize"><strong>Window duration:</strong></label>
 								<div class="col-xl-3">
 									<div class="input-group">
-										<input title="Window length in miliseconds" class="form-control" type="number" name="winsize" value="50">
+										<input title="Window length in miliseconds" class="form-control" type="number" id="winsize" name="winsize" value="50">
 										<div class="input-group-append">
 											<span class="input-group-text">ms</span>
 										</div>
@@ -89,7 +99,7 @@
 								<label class="col-xl-3 col-form-label" for="overlap"><strong>Overlap percentage:</strong></label>
 								<div class="col-xl-3">
 									<div class="input-group">
-										<input title="Overlap between windows" class="form-control" type="number" name="overlap" value="50">
+										<input title="Overlap between windows" class="form-control" type="number" id="overlap" name="overlap" value="50">
 										<div class="input-group-append">
 											<span class="input-group-text">%</span>
 										</div>
@@ -99,7 +109,7 @@
 							<div class="row mb-4">
 								<label class="col-xl-3 col-form-label" for="norm"><strong>Normalization norm:</strong></label>
 								<div class="col-xl-3">
-									<select title="Norm to be used in column-wise normalization" class="custom-select form-control" name="norm">
+									<select title="Norm to be used in column-wise normalization" class="custom-select form-control" id="norm"name="norm">
 										<option value="inf">&infin;</option>
 										<option value="1">Manhattan</option>
 										<option selected value="2">Euclidean</option>
@@ -107,13 +117,13 @@
 								</div>
 								<label class="col-xl-3 col-form-label" for="epsilon"><strong>Normalization threshold:</strong></label>
 								<div class="col-xl-3">
-									<input title="Overlap between windows" class="form-control" type="number" name="epsilon" value="0.0001">
+									<input title="Overlap between windows" class="form-control" type="number" id="epsilon" name="epsilon" value="0.0001">
 								</div>
 							</div>
 							<div class="row mb-4">
 								<label class="col-xl-3 col-form-label" for="gamma"><strong>Compression constant:</strong></label>
 								<div class="col-xl-3">
-										<input title="Logarithmic compression constant" class="form-control" type="number" name="gamma" value="10">
+										<input title="Logarithmic compression constant" class="form-control" type="number" id="gamma" name="gamma" value="10">
 								</div>
 							</div>
 						</div>
@@ -138,7 +148,7 @@
 								<div class="row mb-4">
 									<label class="col-xl-6 col-form-label" for="distance"><strong>Distance metric</strong></label>
 									<div class="col-xl-6">
-										<select title="Distance metric between two frames" class="custom-select form-control" name="distance">
+										<select title="Distance metric between two frames" class="custom-select form-control" id ="distance" name="distance">
 											<option selected value="cosine">Cosine</option>
 											<option value="correlation">Correlation</option>
 											<option value="chebyshev">Chebyshev</option>
@@ -150,26 +160,25 @@
 								<div class="row mb-4">
 									<label class="col-xl-6 col-form-label" for="stepsize"><strong>Steps Allowed</strong></label>
 									<div class="col-xl-6">
-										<select title="DTW allowed optimal path step sizes" class="custom-select form-control" name="stepsize">
+										<select title="DTW allowed optimal path step sizes" class="custom-select form-control" id="stepsize" name="stepsize">
 											<option selected value="standard">Standard</option>
-											<option value="diagonal5">Display Test</option>
 											{# Add other options here after discussion #}
 										</select>
 									</div>
 								</div>
-								<div class="row mb-4">
+								<div class="row mb-4" id="band-input">
 									<label class="col-xl-6 col-form-label" for="band"><strong>Sakoe-Chiba Band</strong></label>
 									<div class="col-xl-6">
-										<select title="Global DTW path constraint band" class="custom-select form-control" name="band">
+										<select title="Global DTW path constraint band" class="custom-select form-control" name="band" id="band">
 											<option value="true">Yes</option>
 											<option selected value="false">No</option>
 										</select>
 									</div>
 								</div>
-								<div class="row mb-4">
+								<div class="row mb-4" id="radius-input">
 									<label class="col-xl-6 col-form-label" for="radius"><strong>Band Radius</strong></label>
 									<div class="col-xl-6">
-											<input title="Half of the band width" class="form-control" type="number" name="radius" value="0.0008">
+											<input title="Half of the band width" class="form-control" type="number" name="radius" id="radius"value="0.0008">
 									</div>
 								</div>
 							</div>
@@ -183,15 +192,15 @@
 									<div class="row mb-4">	
 										<label class="col-xl-3 col-form-label mb-4" for="W1"><strong>W1</strong></label>
 										<div class="col-xl-3 mb-4">
-												<input class="form-control" type="number" name="W1">
+												<input class="form-control" type="number" id="W1" name="W1" value=1>
 										</div>	
 										<label class="col-xl-3 col-form-label mb-4" for="W2"><strong>W2</strong></label>
 										<div class="col-xl-3 mb-4">
-												<input class="form-control" type="number" name="W2">
+												<input class="form-control" type="number" id="W2" name="W2"  value=3>
 										</div>	
 										<label class="col-xl-3 col-form-label mb-4" for="W3"><strong>W3</strong></label>
 										<div class="col-xl-3 mb-4">
-												<input class="form-control" type="number" name="W3">
+												<input class="form-control" type="number" id="W3" name="W3" value=3>
 										</div>
 									</div>
 								</div>
@@ -205,4 +214,5 @@
 			<input class="btn btn-success btn-lg" type="submit" value="Align !">
 		</div>
 	</form>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/upload.js') }}"></script>
 {% endblock %}

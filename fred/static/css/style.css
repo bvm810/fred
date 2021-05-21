@@ -116,6 +116,40 @@ body {
 	padding-bottom: 3rem
 }
 
+.file-selector{
+	width: 25%;
+}
+
+.file-list {
+	display: flex;
+	flex-direction: column;
+	width: 50%;
+	margin: 0;
+	padding: 0;
+
+}
+
+.file-list li {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.file-list img {
+	margin-left: auto;
+	height: auto;
+	width: auto;
+	cursor: pointer;
+}
+
+.file-list li::before {
+	content: "▪";
+	margin-right: 0.5rem;
+}
+
 #param-input {
 	width: 100%;
     min-height: 100%;
@@ -158,6 +192,10 @@ body {
 .dtw-param-col {
 	margin-left: 0;
 	padding-left: 0
+}
+
+#radius-input {
+	visibility: hidden
 }
 
 #dtw-diagram {
