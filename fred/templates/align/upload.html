@@ -74,7 +74,7 @@
 							<div class="row mb-4">
 								<label class="col-xl-3 col-form-label" for="nfft"><strong>Number of FFT points:</strong></label>
 								<div class="col-xl-3">
-									<input title="Number of FFT samples" class="form-control" type="number" id="nfft" name="nfft" value="4096">
+									<input title="Number of FFT samples" class="form-control" type="number" id="nfft" name="nfft" value="4096" min="1">
 								</div>
 								<label class="col-xl-3 col-form-label" for="window"><strong>Windowing function:</strong></label>
 								<div class="col-xl-3">
@@ -90,7 +90,7 @@
 								<label class="col-xl-3 col-form-label" for="winsize"><strong>Window duration:</strong></label>
 								<div class="col-xl-3">
 									<div class="input-group">
-										<input title="Window length in miliseconds" class="form-control" type="number" id="winsize" name="winsize" value="50">
+										<input title="Window length in miliseconds" class="form-control" type="number" id="winsize" name="winsize" value="92" min="1">
 										<div class="input-group-append">
 											<span class="input-group-text">ms</span>
 										</div>
@@ -99,7 +99,7 @@
 								<label class="col-xl-3 col-form-label" for="overlap"><strong>Overlap percentage:</strong></label>
 								<div class="col-xl-3">
 									<div class="input-group">
-										<input title="Overlap between windows" class="form-control" type="number" id="overlap" name="overlap" value="50">
+										<input title="Overlap between windows" class="form-control" type="number" id="overlap" name="overlap" value="50" min="1" max="100" step="0.5">
 										<div class="input-group-append">
 											<span class="input-group-text">%</span>
 										</div>
@@ -117,13 +117,13 @@
 								</div>
 								<label class="col-xl-3 col-form-label" for="epsilon"><strong>Normalization threshold:</strong></label>
 								<div class="col-xl-3">
-									<input title="Overlap between windows" class="form-control" type="number" id="epsilon" name="epsilon" value="0.0001">
+									<input title="Overlap between windows" class="form-control" type="number" id="epsilon" name="epsilon" value="0.0001" min="0" step="0.00005">
 								</div>
 							</div>
 							<div class="row mb-4">
 								<label class="col-xl-3 col-form-label" for="gamma"><strong>Compression constant:</strong></label>
 								<div class="col-xl-3">
-										<input title="Logarithmic compression constant" class="form-control" type="number" id="gamma" name="gamma" value="10">
+										<input title="Logarithmic compression constant" class="form-control" type="number" id="gamma" name="gamma" value="10" min="0">
 								</div>
 							</div>
 						</div>
@@ -178,7 +178,7 @@
 								<div class="row mb-4" id="radius-input">
 									<label class="col-xl-6 col-form-label" for="radius"><strong>Band Radius</strong></label>
 									<div class="col-xl-6">
-											<input title="Half of the band width" class="form-control" type="number" name="radius" id="radius"value="0.0008">
+											<input title="Half of the band width" class="form-control" type="number" name="radius" id="radius" value="0.0008" min="0" step="0.0001">
 									</div>
 								</div>
 							</div>

@@ -1,6 +1,7 @@
 import music21
 import numpy as np
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
+from fred.exceptions import AlignmentError, ParamInputError
 from midi2audio import FluidSynth
 from flask import current_app
 from librosa.core import load
@@ -9,20 +10,20 @@ from librosa.sequence import dtw
 from librosa.display import waveplot, specshow
 
 default_params = {
-	"norm": 2, #OK
+	"norm": 2, # OK
 	"n_fft": 4096, #OK
-	"hop_length": 2048, #OK
-	"win_length": 4096, #OK 
+	"hop_length": 2048, # OK
+	"win_length": 4096, # OK
 	"window": "hanning", #OK
-	"center": False, # SHOULD NOT BE AVAILABLE TO USER
-	"epsilon": 0.0001, #OK 
-	"gamma": 10, #OK
-	"metric": "cosine", #OK
-	"step_sizes_sigma": np.asarray([(1,1), (1,0), (0,1)]), # FINISH LATER
-	"weights_add": np.asarray([0, 0, 0]), # NOT AVAILABLE TO USER
-	"weights_mul": np.asarray([1, 3, 3]), # FINISH LATER
-	"global_constraints": False, #OK
-	"band_rad": 0.0008 #OK
+	"center": False, # OK
+	"epsilon": 0.0001, # OK
+	"gamma": 10, # OK 
+	"metric": "cosine", # 
+	"step_sizes_sigma": np.asarray([(1,1), (1,0), (0,1)]), # NOT OK
+	"weights_add": np.asarray([0, 0, 0]), # OK
+	"weights_mul": np.asarray([1, 3, 3]), # NOT OK
+	"global_constraints": False, # OK
+	"band_rad": 0.0008 # OK
 }
 
 
@@ -49,6 +50,10 @@ def plot_audio(filepath):
 def chromagram(audio, fs, params):
 	# params is dictionary with correct parameters for chroma_stft librosa convenience function
 	# fill in docs with their meanings later on by checking librosa docs
+	
+	if params["n_fft"] < params["win_length"]:
+		raise ParamInputError("Window too large! For {} FFT samples and {}Hz sampling frequency, maximum window size is {:.2f}ms".format(params["n_fft"], fs, params["n_fft"]*1000/fs))
+
 	chromagram = chroma_stft(
 		audio,
 		fs,
@@ -87,7 +92,7 @@ def align(filepath1, filepath2, params):
 	y, fs_y = load(filepath2, sr = None, mono = True)
 
 	if fs_x != fs_y:
-		return Exception("Files have different sampling rates")
+		raise AlignmentError("Files have different sampling rates")
 
 	fs = fs_x
 	cgram_x = chromagram(x, fs, params)
@@ -134,7 +139,6 @@ def align_audios(filepaths, params):
 
 def test_align(filepaths, params):
 	warp_dict = align_audios(filepaths, params)
-	print(warp_dict)
 	for key in warp_dict:
 		audios = key.split(";")
 		if not np.array_equal(warp_dict["{};{}".format(audios[0], audios[1])][:,0], warp_dict["{};{}".format(audios[1], audios[0])][:,1]):
