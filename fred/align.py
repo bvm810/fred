@@ -203,8 +203,8 @@ def handle_params(form, fs):
 		"n_fft": int(form["nfft"]),
 		"window": form["window"],
 		"win_length": int(round((float(form["winsize"])/1000)*fs)),
-		"hop_length": int(round((float(form["overlap"])/100)*(float(form["winsize"])/1000)*fs)),
-		"center": False, # user does not get a choice on this parameter
+		"hop_length": int(round((1 - (float(form["overlap"])/100))*round((float(form["winsize"])/1000)*fs))),
+		"center": True, # user does not get a choice on this parameter
 		"norm": np.inf if form["norm"] == "inf" else float(form["norm"]),
 		"epsilon": float(form["epsilon"]),
 		"gamma": float(form["gamma"]),
