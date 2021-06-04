@@ -35,13 +35,13 @@ async function loadMusicSheet(path, divId){
 	return osmd;
 }
 
-function loadRecording(path, index) {
+function loadRecording(path, index, paths) {
 	// create howl for the recording
 	const sound = new Howl({
 		src: [path],
 		volume: 1,
 		html5: true,
-		onload: () => onLoadRecording(path, index, sound)
+		onload: () => onLoadRecording(path, index, sound, paths.length)
 	});
 
 	// return a playback object containing all useful elements to be manipulated and the sound
@@ -57,10 +57,15 @@ function loadRecording(path, index) {
 	return playback;
 }
 
-function onLoadRecording(path, index, sound) {
+function onLoadRecording(path, index, sound, numberOfPaths) {
 	// set correct title
 	const title = document.getElementById(`title-${index}`);
 	title.innerHTML = path.split("/").slice(-1)[0].replace(".wav", '').replace(/_/g, ' ')
+
+	if (index === numberOfPaths-1) {
+		console.log("hey")
+		title.innerHTML = title.innerHTML.replace(/sid [0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i, '')
+	}
 
 	// set progress bar to zero
 	const progressBar = document.getElementById(`progress-${index}`)
@@ -99,8 +104,8 @@ function stop(playbacks) {
 
 function loadRecordings(paths) {
 	// load recordings individually
-	const playbacks = paths.map((path, index) => {
-		return loadRecording(path, index)
+	const playbacks = paths.map((path, index, paths) => {
+		return loadRecording(path, index, paths)
 	})
 
 	// set play pause and stop functions
@@ -163,8 +168,6 @@ function updateCursor(playback, osmd, timestamps, referencePlayback, musicInfo) 
 	}, 10)
 	playback.sound.on("stop", () => {
 		clearInterval(cback);
-		osmd.cursor.reset()
-		timestampsCopy = [...timestamps]
 	});
 	playback.sound.on("pause", () => {
 		clearInterval(cback);
@@ -231,24 +234,26 @@ function handleSelection(oldSelectorStates, selectorStates, playbacks, musicInfo
 function getEquivalentTime(toPlayback, fromPlayback, musicInfo) {
 	const currentSongTime = fromPlayback.sound.seek()
 	if (fromPlayback.idx === toPlayback.idx) return currentSongTime
-	const currentSongFrame = secondToFrame(currentSongTime, musicInfo["chroma"]["hop_length"], musicInfo["chroma"]["sampling_rate"])
+	const [currentSongFrame, conversionError] = secondToFrame(currentSongTime, musicInfo["chroma"]["hop_length"], musicInfo["chroma"]["sampling_rate"])
 	const equivalentFrames = musicInfo["frame_equivalence"][`${fromPlayback.idx};${toPlayback.idx}`]
-		.filter((eqArray) => eqArray[0] === currentSongFrame)
+		.filter((eqArray) => eqArray[0] === Math.floor(currentSongFrame))
 		.map((eqArray) => eqArray[1])
 	// add switch case for methods here ?
 	// add handling if list is empty ?
 	if (equivalentFrames.length <= 0) throw new Error("No equivalence between frames")
 	const songEquivalentFrame = Math.round(equivalentFrames.reduce((sum, frame) => sum + frame)/equivalentFrames.length)
-	const songEquivalentTime = frameToSecond(songEquivalentFrame, musicInfo["chroma"]["hop_length"], musicInfo["chroma"]["sampling_rate"])
+	const songEquivalentTime = frameToSecond(songEquivalentFrame, conversionError, musicInfo["chroma"]["hop_length"], musicInfo["chroma"]["sampling_rate"])
 	return songEquivalentTime
 }
 
 function secondToFrame(time, hopLength, samplingRate) {
-	return Math.round((time * samplingRate)/hopLength)
+	frame = Math.round((time * samplingRate)/hopLength)
+	error = (time * samplingRate)/hopLength - frame
+	return [frame, error]
 }
 
-function frameToSecond(frame, hopLength, samplingRate) {
-	return (frame * hopLength)/samplingRate
+function frameToSecond(frame, error, hopLength, samplingRate) {
+	return ((frame + error) * hopLength)/samplingRate
 }
 
 function secondToMinuteString(duration) {
@@ -300,6 +305,10 @@ async function main() {
 				updateProgressBars(playback, playbacks, musicInfo)
 				updateElapsedTime(playback, playbacks, musicInfo)
 			})
+			playback.sound.on("stop", () => {
+				osmd.cursor.reset()
+				timestampsCopy = [...timestamps]
+			})
 			playback.sound.on("end", () => {
 				osmd.cursor.reset()
 				timestampsCopy = [...timestamps]
@@ -308,6 +317,12 @@ async function main() {
 					plybck.currentTime.innerHTML = "00:00"
 				})
 			})
+		})
+
+		// unload sounds when user leaves page
+		window.addEventListener("beforeunload", (event) => {
+			Howler.unload()
+			return null
 		})
 
 	} catch(err) {

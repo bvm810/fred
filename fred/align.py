@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 from pathlib import Path
 import numpy as np
 import wave
+import uuid
 from fred.processing import mxl2wav, align_audios, default_params
 from fred.exceptions import AlignmentError, ParamInputError, FileHandlingError, PostError
 
@@ -247,7 +248,7 @@ def write_info_json(filepaths, form):
 	data["recordings"] = [str(filepath) for filepath in filepaths if str(filepath).rsplit('.', 1)[-1].lower() in current_app.config["SONG_ALLOWED_EXTENSIONS"]]
 
 	# synthesize midi
-	data["recordings"].append(str(Path(current_app.config["SONG_UPLOAD_FOLDER"], "Synthesized Score.wav")))
+	data["recordings"].append(str(Path(current_app.config["SONG_UPLOAD_FOLDER"], "Synthesized_Score_" + "sid_" + str(uuid.uuid4()) + ".wav")))
 	mxl2wav(data["score"][0], str(Path(current_app.config["MIDI_FOLDER"], "synthesized-score.mid")), data["recordings"][-1])
 
 	# clean form params for use here
