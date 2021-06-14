@@ -57,7 +57,7 @@ def chromagram(audio, fs, params):
 	chromagram = chroma_stft(
 		audio,
 		fs,
-		norm = params["norm"],
+		norm = None,
 		n_fft = params["n_fft"],
 		hop_length = params["hop_length"],
 		win_length = params["win_length"],
@@ -65,13 +65,15 @@ def chromagram(audio, fs, params):
 		center = params["center"]
 	)
 
-	# Normalization
-	for column in chromagram.T:
-		if np.linalg.norm(column, 2) < params["epsilon"]:
-			column[...] = (1/np.sqrt(12)) * np.ones(12)
-
 	# Compression
 	chromagram = np.log10(1+params["gamma"]*chromagram)
+
+	# Normalization
+	for column in chromagram.T:
+		if np.linalg.norm(column, params["norm"]) < params["epsilon"]:
+			column[...] = (1/np.linalg.norm(np.ones(12), params["norm"])) * np.ones(12)
+		else:
+			column = column/np.linalg.norm(column, params["norm"])
 
 	return chromagram
 

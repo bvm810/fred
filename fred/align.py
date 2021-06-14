@@ -206,7 +206,7 @@ def handle_params(form, fs):
 		"win_length": int(round((float(form["winsize"])/1000)*fs)),
 		"hop_length": int(round((1 - (float(form["overlap"])/100))*round((float(form["winsize"])/1000)*fs))),
 		"center": True, # user does not get a choice on this parameter
-		"norm": np.inf if form["norm"] == "inf" else float(form["norm"]),
+		"norm": np.inf if form["norm"] == "inf" else int(form["norm"]),
 		"epsilon": float(form["epsilon"]),
 		"gamma": float(form["gamma"]),
 		"metric": form["distance"],
@@ -271,7 +271,7 @@ def write_info_json(filepaths, form):
 		"window": params["window"],
 		"hop_length": params["hop_length"],
 		"win_length": params["win_length"],
-		"norm": params["norm"],
+		"norm": "inf" if np.isinf(params["norm"]) else params["norm"],
 		"epsilon": params["epsilon"],
 		"gamma": params["gamma"]
 	}
