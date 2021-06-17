@@ -73,7 +73,7 @@ def chromagram(audio, fs, params):
 		if np.linalg.norm(column, params["norm"]) < params["epsilon"]:
 			column[...] = (1/np.linalg.norm(np.ones(12), params["norm"])) * np.ones(12)
 		else:
-			column = column/np.linalg.norm(column, params["norm"])
+			column[...] = column/np.linalg.norm(column, params["norm"])
 
 	return chromagram
 
