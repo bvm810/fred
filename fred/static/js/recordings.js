@@ -63,7 +63,6 @@ function onLoadRecording(path, index, sound, numberOfPaths) {
 	title.innerHTML = path.split("/").slice(-1)[0].replace(".wav", '').replace(/_/g, ' ')
 
 	if (index === numberOfPaths-1) {
-		console.log("hey")
 		title.innerHTML = title.innerHTML.replace(/sid [0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i, '')
 	}
 
@@ -153,9 +152,9 @@ function getCursorTimestamps(osmd) {
 	return timestamps;
 }
 
-function moveCursor(songEquivalentTime, cursor, timestamps) {
+function moveCursor(songEquivalentTime, osmd, timestamps) {
 	while(songEquivalentTime >= timestamps[1]) {
-		cursor.next()
+		osmd.cursor.next()
 		timestamps.shift();
 	}
 	return timestamps
@@ -164,7 +163,7 @@ function moveCursor(songEquivalentTime, cursor, timestamps) {
 function updateCursor(playback, osmd, timestamps, referencePlayback, musicInfo) {
 	const cback = setInterval(() => {
 		const songEquivalentTime = getEquivalentTime(referencePlayback, playback, musicInfo)
-		timestamps = moveCursor(songEquivalentTime, osmd.cursor, timestamps)
+		timestamps = moveCursor(songEquivalentTime, osmd, timestamps)
 	}, 10)
 	playback.sound.on("stop", () => {
 		clearInterval(cback);
@@ -175,12 +174,17 @@ function updateCursor(playback, osmd, timestamps, referencePlayback, musicInfo) 
 	return timestamps
 }
 
+function updateProgressBar(playback, timeValue) {
+	const progressBar = playback.progress
+	progressBar.style.width = `${(timeValue/playback.sound.duration())*100}%`
+	progressBar.ariaValueNow = `${(timeValue/playback.sound.duration())*100}`
+}
+
 function updateProgressBars(playback, playbacks, musicInfo) {
 	const cback = setInterval(() => {
 		playbacks.forEach((plybck) => {
 			const equivalentTime = getEquivalentTime(plybck, playback, musicInfo)
-			const progressBar = plybck.progress
-			progressBar.style.width = `${(equivalentTime/plybck.sound.duration())*100}%`
+			updateProgressBar(plybck, equivalentTime)
 		})
 	}, 10)
 	playback.sound.on("stop", () => {
@@ -194,12 +198,16 @@ function updateProgressBars(playback, playbacks, musicInfo) {
 	})
 }
 
-function updateElapsedTime(playback, playbacks, musicInfo) {
+function updateElapsedTime(playback, timeValue) {
+	const currentTime = playback.currentTime
+	currentTime.innerHTML = secondToMinuteString(Math.round(timeValue))
+}
+
+function updateElapsedTimes(playback, playbacks, musicInfo) {
 	const cback = setInterval(() => {
 		playbacks.forEach((plybck) => {
 			const equivalentTime = getEquivalentTime(plybck, playback, musicInfo)
-			const currentTime = plybck.currentTime
-			currentTime.innerHTML = secondToMinuteString(Math.round(equivalentTime))
+			updateElapsedTime(plybck, equivalentTime)
 		})
 	}, 10)
 	playback.sound.on("stop", () => {
@@ -262,6 +270,31 @@ function secondToMinuteString(duration) {
 	return `${minutes}:${seconds}`
 }
 
+function getProgressClickedPosition(progressContainer, mouseClick) {
+	// essentially subtract container left bound from click position
+	const elapsedProgress = mouseClick.pageX - progressContainer.offsetLeft
+	// then multiply by the incremental value (max value/width)
+	return elapsedProgress * 100 / progressContainer.offsetWidth
+}
+
+function onClickProgress(event, playback, playbacks, musicInfo) {
+	// get progress bar and container for click handling
+	const progressBar = playback.progress
+	const progressBarContainer = progressBar.parentNode
+	// get clicked position in progress bar (% of elapsed audio) and desired time for audio
+	const clickedPosition = getProgressClickedPosition(progressBarContainer, event)
+	const desiredTime = (clickedPosition/100) * playback.sound.duration()
+	// seek desired position in correct playback
+	playback.sound.seek(desiredTime)
+	// adjust all other playbacks
+	playbacks.forEach((plybck) => {
+		const songEquivalentTime = getEquivalentTime(plybck, playback, musicInfo)
+		plybck.sound.seek(songEquivalentTime)
+		updateProgressBar(plybck, songEquivalentTime)
+		updateElapsedTime(plybck, songEquivalentTime)
+	})
+}
+
 async function main() {
 	try {
 		// get music info 
@@ -297,13 +330,25 @@ async function main() {
 
 		// show cursor
 		osmd.cursor.show();
+		osmd.FollowCursor = true;
 
 		// set callback for updating cursor and progress bar
 		playbacks.forEach((playback) => {
+			// progress bar click event for playback control
+			playback.progress.parentNode.addEventListener("click", (e) => {
+				const wasPlaying = playbacks.filter((plybck) => plybck.sound.playing()).length > 0
+				pause(playbacks)
+				onClickProgress(e, playback, playbacks, musicInfo)
+				osmd.cursor.reset()
+				timestampsCopy = [...timestamps]
+				timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo)
+				if (wasPlaying) play(playbacks)
+			})
+			// callbacks for updating cursor, progress bars and time
 			playback.sound.on("play", () => {
 				timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo)
 				updateProgressBars(playback, playbacks, musicInfo)
-				updateElapsedTime(playback, playbacks, musicInfo)
+				updateElapsedTimes(playback, playbacks, musicInfo)
 			})
 			playback.sound.on("stop", () => {
 				osmd.cursor.reset()
