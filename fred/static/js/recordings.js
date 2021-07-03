@@ -156,6 +156,7 @@ function moveCursor(songEquivalentTime, osmd, timestamps) {
 	while(songEquivalentTime >= timestamps[1]) {
 		osmd.cursor.next()
 		timestamps.shift();
+		osmd.cursor.cursorElement.scrollIntoView({behavior: "smooth", block: "center"})
 	}
 	return timestamps
 }
@@ -330,7 +331,6 @@ async function main() {
 
 		// show cursor
 		osmd.cursor.show();
-		osmd.FollowCursor = true;
 
 		// set callback for updating cursor and progress bar
 		playbacks.forEach((playback) => {
