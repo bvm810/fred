@@ -120,10 +120,49 @@ function loadRecordings(paths) {
 	return playbacks;
 }
 
-function getCursorTimestamps(osmd) {
+
+// function getCursorTimestamps(osmd) {
+
+// 	// initialize variables
+// 	let timestamps = [];
+// 	let notes = [];
+// 	let note = null;
+// 	let timestamp = 0;
+// 	let measure = null;
+// 	let bpm = 0;
+// 	let beat = 0;
+
+// 	// reset cursor
+// 	osmd.cursor.reset()
+
+// 	// get iterator and sheet music objects
+// 	const sheet = osmd.sheet
+// 	const iterator = osmd.cursor.iterator
+
+// 	while (!iterator.EndReached) {
+// 		// since OSMD only renders one speed instruction per measure, we can accept this constraint and base ourselves on it
+// 		measure = sheet.SourceMeasures[iterator.CurrentMeasureIndex]
+// 		if (measure.TempoExpressions.length > 0) {
+// 			beat = beatNamesAndValues[measure.TempoExpressions[0].InstantaneousTempo.beatUnit]
+// 			if (measure.TempoExpressions[0].InstantaneousTempo.dotted) {
+// 				beat = beat * 1.5;
+// 			}
+// 			bpm = measure.TempoInBPM;
+// 		}
+// 		timestamp = iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm
+// 		timestamps.push(timestamp);
+// 		iterator.moveToNext()
+// 	}
+// 	return timestamps
+// }
+
+function getCursorTimestampsAndNotes(osmd) {
 
 	// initialize variables
 	let timestamps = [];
+	let notes = [];
+	let note = null;
+	let timestamp = 0;
 	let measure = null;
 	let bpm = 0;
 	let beat = 0;
@@ -145,11 +184,19 @@ function getCursorTimestamps(osmd) {
 			}
 			bpm = measure.TempoInBPM;
 		}
-			
-		timestamps.push(iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm);
+		timestamp = iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm
+		timestamps.push(timestamp);
+		for (let i = 0; i < iterator.CurrentVoiceEntries.length; i++) {
+			for (let j = 0; j < iterator.CurrentVoiceEntries[i].notes.length; j++) {
+				note = iterator.CurrentVoiceEntries[i].notes[j]
+				if((note != null) && (note.halfTone != 0)) {
+					notes.push({"noteObject": note, "absoluteTimestamp": timestamp})
+				}
+			}
+		}
 		iterator.moveToNext()
 	}
-	return timestamps;
+	return [timestamps, notes];
 }
 
 function moveCursor(songEquivalentTime, osmd, timestamps) {
@@ -296,6 +343,29 @@ function onClickProgress(event, playback, playbacks, musicInfo) {
 	})
 }
 
+function onClickScore(event, osmd, scoreContainer, notes, playbacks, referencePlayback, musicInfo) {
+	const clickLocation = new opensheetmusicdisplay.PointF2D(event.pageX, event.pageY);
+	const sheetLocation = getOSMDCoordinates(clickLocation, scoreContainer);
+	const maxDist = new opensheetmusicdisplay.PointF2D(1,1);
+	const nearestNote = osmd.GraphicSheet.GetNearestNote(sheetLocation, maxDist);
+	const noteTimestamp = notes.filter((obj) => obj.noteObject === nearestNote.sourceNote)[0].absoluteTimestamp
+	if(noteTimestamp === undefined) return null
+	referencePlayback.sound.seek(noteTimestamp)
+	playbacks.forEach((playback) => {
+		const songEquivalentTime = getEquivalentTime(playback, referencePlayback, musicInfo)
+		playback.sound.seek(songEquivalentTime)
+		updateProgressBar(playback, songEquivalentTime)
+		updateElapsedTime(playback, songEquivalentTime)
+	})
+	return [nearestNote, noteTimestamp]
+}
+
+function getOSMDCoordinates(clickLocation, scoreContainer) {
+	const sheetX = (clickLocation.x - scoreContainer.offsetLeft) / 10;
+	const sheetY = (clickLocation.y - scoreContainer.offsetTop) / 10;
+	return new opensheetmusicdisplay.PointF2D(sheetX, sheetY);
+}
+
 async function main() {
 	try {
 		// get music info 
@@ -309,7 +379,8 @@ async function main() {
 		}
 		// load sheet
 		const osmd = await loadMusicSheet(scoreFile[0], 'score')
-		let timestamps = getCursorTimestamps(osmd)
+		let [timestamps, notes] = getCursorTimestampsAndNotes(osmd)
+		// let timestamps = getCursorTimestamps(osmd)
 		let timestampsCopy = [...timestamps]
 
 		// get recordings file paths
@@ -329,8 +400,22 @@ async function main() {
 			}
 		})
 
-		// show cursor
-		osmd.cursor.show();
+		// set click event graphic sheet
+		scoreContainer = document.getElementById("score")
+		scoreContainer.addEventListener("click", (e) => {
+			const wasPlaying = playbacks.filter((plybck) => plybck.sound.playing()).length > 0
+			pause(playbacks)
+			const clickedNoteData = onClickScore(e, osmd, scoreContainer, notes, playbacks, referencePlayback, musicInfo)
+			if (clickedNoteData !== null) {
+				osmd.cursor.reset()
+				timestampsCopy = [...timestamps]
+				playbacks.forEach((playback) => timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo))
+			}
+			if (wasPlaying) play(playbacks)
+		})
+		
+		osmd.cursor.show()
+		
 
 		// set callback for updating cursor and progress bar
 		playbacks.forEach((playback) => {
