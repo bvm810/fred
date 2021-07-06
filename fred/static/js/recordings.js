@@ -121,41 +121,6 @@ function loadRecordings(paths) {
 }
 
 
-// function getCursorTimestamps(osmd) {
-
-// 	// initialize variables
-// 	let timestamps = [];
-// 	let notes = [];
-// 	let note = null;
-// 	let timestamp = 0;
-// 	let measure = null;
-// 	let bpm = 0;
-// 	let beat = 0;
-
-// 	// reset cursor
-// 	osmd.cursor.reset()
-
-// 	// get iterator and sheet music objects
-// 	const sheet = osmd.sheet
-// 	const iterator = osmd.cursor.iterator
-
-// 	while (!iterator.EndReached) {
-// 		// since OSMD only renders one speed instruction per measure, we can accept this constraint and base ourselves on it
-// 		measure = sheet.SourceMeasures[iterator.CurrentMeasureIndex]
-// 		if (measure.TempoExpressions.length > 0) {
-// 			beat = beatNamesAndValues[measure.TempoExpressions[0].InstantaneousTempo.beatUnit]
-// 			if (measure.TempoExpressions[0].InstantaneousTempo.dotted) {
-// 				beat = beat * 1.5;
-// 			}
-// 			bpm = measure.TempoInBPM;
-// 		}
-// 		timestamp = iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm
-// 		timestamps.push(timestamp);
-// 		iterator.moveToNext()
-// 	}
-// 	return timestamps
-// }
-
 function getCursorTimestampsAndNotes(osmd) {
 
 	// initialize variables
