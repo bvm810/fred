@@ -23,9 +23,8 @@ async function loadMusicSheet(path, divId){
 		sheetContainer,
 		{
 			autoResize: true, 
-			backend: "svg", 
-			drawTitle: false,
-			drawComposer: false,
+			backend: "svg",
+			drawingParameters: "compacttight"
 		}
 	);
 
@@ -127,10 +126,14 @@ function getCursorTimestampsAndNotes(osmd) {
 	let timestamps = [];
 	let notes = [];
 	let note = null;
+	let previousTimestamp= 0;
 	let timestamp = 0;
+	let iteratorTimestamp = 0;
+	let previousIteratorTimestamp = 0;
 	let measure = null;
 	let bpm = 0;
 	let beat = 0;
+	let id = 1;
 
 	// reset cursor
 	osmd.cursor.reset()
@@ -149,8 +152,13 @@ function getCursorTimestampsAndNotes(osmd) {
 			}
 			bpm = measure.TempoInBPM;
 		}
-		timestamp = iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm
+		iteratorTimestamp = iterator.currentTimeStamp.realValue
+		timestamp = previousTimestamp + (iteratorTimestamp - previousIteratorTimestamp) * (1/beat) * 60/bpm
 		timestamps.push(timestamp);
+		previousIteratorTimestamp = iteratorTimestamp;
+		previousTimestamp = timestamp;
+		// timestamp = iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm
+		// timestamps.push(timestamp);
 		for (let i = 0; i < iterator.CurrentVoiceEntries.length; i++) {
 			for (let j = 0; j < iterator.CurrentVoiceEntries[i].notes.length; j++) {
 				note = iterator.CurrentVoiceEntries[i].notes[j]
@@ -313,8 +321,9 @@ function onClickScore(event, osmd, scoreContainer, notes, playbacks, referencePl
 	const sheetLocation = getOSMDCoordinates(clickLocation, scoreContainer);
 	const maxDist = new opensheetmusicdisplay.PointF2D(1,1);
 	const nearestNote = osmd.GraphicSheet.GetNearestNote(sheetLocation, maxDist);
-	const noteTimestamp = notes.filter((obj) => obj.noteObject === nearestNote.sourceNote)[0].absoluteTimestamp
-	if(noteTimestamp === undefined) return null
+	const noteObject = notes.filter((obj) => obj.noteObject === nearestNote.sourceNote)[0]
+	if(noteObject === undefined) return null
+	const noteTimestamp = noteObject.absoluteTimestamp
 	referencePlayback.sound.seek(noteTimestamp)
 	playbacks.forEach((playback) => {
 		const songEquivalentTime = getEquivalentTime(playback, referencePlayback, musicInfo)
@@ -345,7 +354,6 @@ async function main() {
 		// load sheet
 		const osmd = await loadMusicSheet(scoreFile[0], 'score')
 		let [timestamps, notes] = getCursorTimestampsAndNotes(osmd)
-		// let timestamps = getCursorTimestamps(osmd)
 		let timestampsCopy = [...timestamps]
 
 		// get recordings file paths
