@@ -24,7 +24,7 @@ async function loadMusicSheet(path, divId){
 		{
 			autoResize: true, 
 			backend: "svg",
-			drawingParameters: "compacttight"
+			drawingParameters: "compacttight",
 		}
 	);
 
