@@ -119,6 +119,10 @@ function loadRecordings(paths) {
 	return playbacks;
 }
 
+function roundToDecimal(num, numberOfPlaces) {
+	multiplier = Math.pow(10, numberOfPlaces)
+	return Math.round(multiplier * num)/multiplier
+}
 
 function getCursorTimestampsAndNotes(osmd) {
 
@@ -154,7 +158,7 @@ function getCursorTimestampsAndNotes(osmd) {
 		}
 		iteratorTimestamp = iterator.currentTimeStamp.realValue
 		timestamp = previousTimestamp + (iteratorTimestamp - previousIteratorTimestamp) * (1/beat) * 60/bpm
-		timestamps.push(timestamp);
+		timestamps.push(roundToDecimal(timestamp, 7));
 		previousIteratorTimestamp = iteratorTimestamp;
 		previousTimestamp = timestamp;
 		// timestamp = iterator.currentTimeStamp.realValue * (1/beat) * 60/bpm
@@ -163,7 +167,7 @@ function getCursorTimestampsAndNotes(osmd) {
 			for (let j = 0; j < iterator.CurrentVoiceEntries[i].notes.length; j++) {
 				note = iterator.CurrentVoiceEntries[i].notes[j]
 				if((note != null) && (note.halfTone != 0)) {
-					notes.push({"noteObject": note, "absoluteTimestamp": timestamp})
+					notes.push({"noteObject": note, "absoluteTimestamp": roundToDecimal(timestamp, 7)})
 				}
 			}
 		}
@@ -355,6 +359,7 @@ async function main() {
 		const osmd = await loadMusicSheet(scoreFile[0], 'score')
 		let [timestamps, notes] = getCursorTimestampsAndNotes(osmd)
 		let timestampsCopy = [...timestamps]
+		console.log(timestamps)
 
 		// get recordings file paths
 		const recordingFiles = musicInfo['recordings'].map(s => s.replace('fred', ''));
@@ -380,9 +385,13 @@ async function main() {
 			pause(playbacks)
 			const clickedNoteData = onClickScore(e, osmd, scoreContainer, notes, playbacks, referencePlayback, musicInfo)
 			if (clickedNoteData !== null) {
-				osmd.cursor.reset()
 				timestampsCopy = [...timestamps]
-				playbacks.forEach((playback) => timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo))
+				osmd.cursor.reset()
+				playbacks.forEach((playback) => {
+					if (playback.selector.checked) {
+						timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo)
+					}
+				})
 			}
 			if (wasPlaying) play(playbacks)
 		})
@@ -397,8 +406,10 @@ async function main() {
 				const wasPlaying = playbacks.filter((plybck) => plybck.sound.playing()).length > 0
 				pause(playbacks)
 				onClickProgress(e, playback, playbacks, musicInfo)
-				osmd.cursor.reset()
 				timestampsCopy = [...timestamps]
+				osmd.cursor.reset()
+				let equivalentTime = getEquivalentTime(referencePlayback, playback, musicInfo)
+				timestampsCopy = moveCursor(equivalentTime, osmd, timestampsCopy)
 				timestampsCopy = updateCursor(playback, osmd, timestampsCopy, referencePlayback, musicInfo)
 				if (wasPlaying) play(playbacks)
 			})

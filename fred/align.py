@@ -224,7 +224,6 @@ def handle_params(form, fs):
 	if any(i <= 0 for i in numerical_params):
 		raise ParamInputError("All numerical parameters must be greater than zero")
 
-
 	# Normally should not raise this error message. Something went wrong with POST request if this shows up
 	if params["step_sizes_sigma"] is None:
 		raise PostError("Invalid allowed steps")

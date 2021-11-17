@@ -7,12 +7,9 @@
 		</div>
 		<div id="mxl-input">
 			<div class="main-content">
-				<h1 class="display-6">Step 1: Scores</h1>
+				<h1 class="display-6">Step 1: Score</h1>
 				<p class="lead">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat.
+					The first step for performance analysis is finding the score for the piece you want to study! Please insert here a <i>.mxl</i> or <i>.musicxml</i> with the digital music sheet of the song being analyzed.
 				</p>
 				<div class="file-selector row mb-4">
 					<h1 class="col-xl-6 col-form-label">Selected file:</h1>
@@ -29,10 +26,7 @@
 			<div class="main-content">
 				<h1 class="display-6">Step 2: Recordings</h1>
 				<p class="lead">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat.
+					The purpose of studying performers is comparing different interpretations of the same pieces! Insert here the recordings you have for the score you provided in step one. Make sure to use <i>.wav</i> files!
 				</p>
 				<div class="file-selector row mb-4">
 					<h1 class="col-xl-6 col-form-label">Selected files:</h1>
@@ -49,10 +43,7 @@
 			<div class="main-content">
 				<h1 class="display-6">Step 3: Parameter selection</h1>
 				<p class="lead">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-					tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-					quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-					consequat.
+					In this section you can change the parameters used when extracting information from the recordings and when comparing them to one another. The default values shown here were tested and worked well for most scores and recordings we tried! Be sure to check the "How does it work?" section before making any changes here.
 				</p>
 				<ul id="param-input-sections">
 					<h1 class="display-7 param-input-section">
@@ -63,12 +54,13 @@
 					</h1>
 					<div id="chroma-params" class="collapse">
 						<p>
-							Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-							tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-							quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-							consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-							cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-							proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+							The chromagram is the representation that we used to analyze a single recording. It essentially stores the amount of energy that the performer put in each one of the twelve notes during frames each lasting a few seconds.
+						</p>
+						<p>
+							The parameters here allow you to change the size of these frames, their overlap, and also how detailed the representation of the energy in each note should be. Adjusting these parameters may increase performance in certain aspects at the expense of others, so be careful!
+						</p>
+						<p>
+							It might be a good idea to check Chapter 2 and Appendix A of the report before trying to experiment too much around here.
 						</p>
 						<div id="chroma-param-input">
 							<div class="row mb-4">
@@ -136,12 +128,10 @@
 					</h1>
 					<div id="dtw-params" class="collapse">
 						<p>
-							Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-							tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-							quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-							consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-							cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-							proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+							These parameters affect the DTW, the algorithm that is used to find equivalences between the frames of the chromagrams for each recording. Changes here will affect how much repetition is allowed in the equivalences, or, in other words, if assigning several frames in a row of one recording to a single one of another is tolerated.
+						</p>
+						<p>
+							More options will be added here later on, but for now playing with the weights might give a good idea of the effect of the DTW in switching and score following. Be sure to check Chapter 2 before making any changes here though!
 						</p>
 						<div id="dtw-param-input" class="row mb-4">
 							<div class="dtw-param-col col-xl-4">
