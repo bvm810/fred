@@ -27,7 +27,7 @@ Then, create a [virtual environment](https://docs.python.org/3/library/venv.html
 
 To manage the different versions of Python that might exist in your computer, you can use [pyenv](https://github.com/pyenv/pyenv).
 
-Create and access the virtual environment, using
+Create and access the virtual environment using
 ```
 cd /path/to/directory
 python -m venv venv
@@ -41,7 +41,7 @@ The project dependencies can then be installed locally with the command
 pip install -r requirements.txt
 ```
 
-MusicXML files are synthesized to audio through MIDI thanks to the [midi2audio](https://pypi.org/project/midi2audio/) package, which uses the [FluidSynth](https://www.fluidsynth.org) synthesizer. Installation depends on your OS.
+MusicXML files are synthesized to audio through MIDI thanks to the [midi2audio](https://pypi.org/project/midi2audio/) package, which uses the [FluidSynth](https://www.fluidsynth.org) synthesizer. The installation that should be used depends on your OS.
 
 - MacOS
 ```
@@ -54,6 +54,7 @@ sudo apt-get install fluidsynth --with-libsndfile
 ```
 
 - Windows
+
 On Windows, FluidSynth needs to be built from source as per the [documentation](https://github.com/FluidSynth/fluidsynth/wiki/BuildingWithCMake#common-tips-for-compiling-from-source)
 
 In order to use FluidSynth, a soundfont is required. Any `.sf2` file will work, but the project was tested using [this](https://drive.google.com/file/d/1e5nPbx7_yPY6mNr3H1pInUgTKmGM6cHo/view) Steinway piano font. Chose the soundfont carefully as it can directly impact the performance of the alignment with the synthesized score!
