@@ -65,6 +65,21 @@ mkdir ./fred/soundfonts
 cp /path/to/soundfont ./fred/soundfonts/fred_soundfont.sf2
 ```
 
+You also should create the secret key that is going to be used by Flask. Normally it would be used for signing cookies, but in the current state of the project no session information is saved. Regardless, Flask might complain if he does not find this key, so its better to crete 
+
+It should be created in the instance folder, which can be generate with the command
+```
+mkdir ./fred/instance
+```
+
+Inside this folder, place a python file named `config.py`, and insert this single line into it
+
+```
+SECRET_KEY=b'7\xdeg\xf2!\xfcgb\x8d\xa62\x1d\xaai\xd8\xe3'
+```
+
+You can change the value of the secret key, but it must be a long secret number
+
 Finally, run the following commands with an active virtual environment
 ```
 export FLASK_APP=fred

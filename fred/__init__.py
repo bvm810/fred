@@ -11,7 +11,7 @@ def create_app():
 	# load basic config
 	app.config.from_object("config.DevelopmentConfig")
 	# load instance config --> to be used later after migration to prod
-	# app.config.from_pyfile('config.py')
+	app.config.from_pyfile('config.py')
 
 	from . import about
 	app.register_blueprint(about.bp)
