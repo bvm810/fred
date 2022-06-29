@@ -2,7 +2,7 @@
 
 ## Description
 
-This repo contains the code for my term paper at Universidade Federal do Rio de Janeiro (UFRJ). It is a wbesite designed for music education through performance analysis, where it is possible to listen and switch between different versions of the same musical work while also interactively following the score on the page.
+This repo contains the code for my term paper at Universidade Federal do Rio de Janeiro (UFRJ). It is a wbesite designed for music education through performance analysis, where it is possible to listen and switch between different versions of the same musical work while also interactively following the score on the page. The full text of my term paper can be found [here](http://www.repositorio.poli.ufrj.br/monografias/projpoli10035746.pdf)
 
 The project was created using the [Flask](https://flask.palletsprojects.com/en/2.0.x/) Python framework for web developping and vanilla HTML/CSS/JS for the front end. Audio processing is mostly done using the [librosa](https://librosa.org) package, and score interaction and rendering is possible thanks to [OpenSheetMusicDisplay](https://opensheetmusicdisplay.github.io).
 
