@@ -65,9 +65,9 @@ mkdir ./fred/soundfonts
 cp /path/to/soundfont ./fred/soundfonts/fred_soundfont.sf2
 ```
 
-You also should create the secret key that is going to be used by Flask. Normally it would be used for signing cookies, but in the current state of the project no session information is saved. Regardless, Flask might complain if he does not find this key, so its better to crete 
+You also should create the secret key that is going to be used by Flask. Normally it would be used for signing cookies, but in the current state of the project no session information is saved. Regardless, Flask might complain if he does not find this key, so its better to create it 
 
-It should be created in the instance folder, which can be generate with the command
+It should be created in the instance folder, which can be generated with the command
 ```
 mkdir ./fred/instance
 ```
